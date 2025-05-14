@@ -5,11 +5,11 @@
 ---
 
 ## 🚀 Tính năng chính
-Đăng ký / Đăng nhập người dùng
-Làm quiz theo chủ đề: Logic, Toán học, IQ, Kiến thức tổng hợp
-Xem điểm số và kết quả ngay sau khi làm bài
-Trang cá nhân
-Giao diện đẹp
+- Đăng ký / Đăng nhập người dùng
+- Làm quiz theo chủ đề: Logic, Toán học, IQ, Kiến thức tổng hợp
+- Xem điểm số và kết quả ngay sau khi làm bài
+- Trang cá nhân
+- Giao diện đẹp
 
 ---
 
@@ -20,11 +20,11 @@ Giao diện đẹp
 
 | Màn hình | Xem trước |
 |----------|-----------|
-| Login/Register | ![Login](./design/login.png) |
+| Start | ![Start](./design/start.png) |
+| Login | ![Login](./design/login.png) |
 | Trang chủ | ![Home](./design/home.png) |
-| Danh sách Quiz | ![Quiz List](./design/quiz_list.png) |
-| Làm bài Quiz | ![Quiz Doing](./design/quiz_doing.png) |
-| Kết quả | ![Result](./design/result.png) |
+| Làm bài Quiz | ![Quiz Doing](./design/quiz.png) |
+| Hồ sơ | ![Profile](./design/profile.png) |
 
 ---
 
