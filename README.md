@@ -5,20 +5,18 @@
 ---
 
 ## 🚀 Tính năng chính
-
-- ✅ Đăng ký / Đăng nhập người dùng
-- 🧩 Làm quiz theo chủ đề: Logic, Toán học, IQ, Kiến thức tổng hợp
-- 📊 Xem điểm số và kết quả ngay sau khi làm bài
-- 🏆 Bảng xếp hạng & hệ thống thành tích
-- 👤 Trang cá nhân với thống kê và cấp độ
-- 🌙 Giao diện đẹp, hỗ trợ Dark Mode
+Đăng ký / Đăng nhập người dùng
+Làm quiz theo chủ đề: Logic, Toán học, IQ, Kiến thức tổng hợp
+Xem điểm số và kết quả ngay sau khi làm bài
+Trang cá nhân
+Giao diện đẹp
 
 ---
 
 ## 🎨 Giao diện (UI Design)
 
 > Toàn bộ thiết kế Figma được lưu tại:  
-👉 [📁 Link Figma (đã export ra ảnh PNG)](https://github.com/your-username/QLogicIQ/tree/main/design)
+[📁 Link Figma (đã export ra ảnh PNG)](https://www.figma.com/design/MipRDKmAcKVj9R8r4PZGUq/QUIZ-LOGIC-IQ?node-id=0-1&t=SB9C7NPlq9hGUFRu-1)
 
 | Màn hình | Xem trước |
 |----------|-----------|
@@ -32,13 +30,7 @@
 
 ## 🔧 Công nghệ sử dụng
 
-- 💻 Frontend: React Native / Flutter *(tuỳ dự án)*
-- 🔙 Backend: Node.js + Express hoặc Firebase
-- 🔐 Authentication: Firebase Auth
-- ☁️ Dữ liệu: Firebase Realtime DB / MongoDB
+- 💻 Frontend: Kotlin
+- 🔙 Backend: Node.js + Express
 - 🎨 Thiết kế UI: Figma
-
----
-
-## 📁 Cấu trúc thư mục
 
