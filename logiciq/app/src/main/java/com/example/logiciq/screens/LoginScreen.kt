@@ -31,12 +31,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -67,7 +72,7 @@ fun LoginScreen(navController: NavController) {
 
         var username by rememberSaveable { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
-        var passwordVisibility by remember { mutableStateOf("")}
+        var passwordVisibility by remember { mutableStateOf(false)}
 
         OutlinedTextField(
             value = username,
@@ -106,16 +111,27 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-//            label = { Text("Mật khẩu") },
-            placeholder = { Text("Mật khẩu", color = Color.White)},
+            placeholder = { Text("Mật khẩu", color = Color.White) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = "Password Icon",
-                    tint = Color(0xFFFFFFFF),
+                    tint = Color.White,
                     modifier = Modifier.size(35.dp)
                 )
             },
+            trailingIcon = {
+                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+                    Icon(
+                        painter = painterResource(id = if (passwordVisibility) R.drawable.visibility else R.drawable.visibilityoff),
+                        contentDescription = if (passwordVisibility) "Hide password" else "Show password",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            },
+            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent
