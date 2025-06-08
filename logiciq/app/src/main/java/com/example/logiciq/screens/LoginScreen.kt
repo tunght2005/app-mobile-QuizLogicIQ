@@ -33,6 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.layout.ContentScale
@@ -64,8 +65,9 @@ fun LoginScreen(navController: NavController) {
                 .padding(start = 30.dp, end = 30.dp, top = 30.dp)
         )
 
-        var username by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        var username by rememberSaveable { mutableStateOf("") }
+        var password by rememberSaveable { mutableStateOf("") }
+        var passwordVisibility by remember { mutableStateOf("")}
 
         OutlinedTextField(
             value = username,
@@ -172,6 +174,7 @@ fun LoginScreen(navController: NavController) {
                 textDecoration = TextDecoration.Underline,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
+                    .padding(start = 2.dp)
                     .clickable {
                 navController.navigate("register_screen") }
             )
