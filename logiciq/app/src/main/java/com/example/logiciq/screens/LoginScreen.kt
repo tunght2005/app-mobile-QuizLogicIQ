@@ -19,10 +19,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.example.logiciq.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -31,7 +44,7 @@ fun LoginScreen(navController: NavController) {
             .fillMaxSize()
             .background(Color(0xFF3F6ABA))
             .padding(34.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -57,23 +70,128 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Tên đăng nhập") },
-            modifier = Modifier.fillMaxWidth()
+//            label = { Text("Tên đăng nhập") },
+            placeholder = { Text("Nhập tên đăng nhập", color = Color.White) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = Color(0xFFFFFFFF),
+                    modifier = Modifier.size(35.dp)
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xCCCCCCCC),
+                            Color(0xFF8DAAEE),
+                            Color(0xFF8DAAEE)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Mật khẩu") },
-            modifier = Modifier.fillMaxWidth()
+//            label = { Text("Mật khẩu") },
+            placeholder = { Text("Mật khẩu", color = Color.White)},
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Password Icon",
+                    tint = Color(0xFFFFFFFF),
+                    modifier = Modifier.size(35.dp)
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xCCCCCCCC),
+                            Color(0xFF8DAAEE),
+                            Color(0xFF8DAAEE)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            singleLine = true
+        )
+        Text(
+            "Quên mật khẩu?",
+            fontSize = 16.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+            navController.navigate("reset_password_screen")}
+                .padding(8.dp),
+            textAlign = TextAlign.End,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /* Xử lý đăng nhập */ }) {
-            Text("ĐĂNG NHẬP", fontSize = 16.sp)
+        Button(onClick = { /* Xử lý đăng nhập */ },
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF8DAAEE)
+            )
+            ) {
+            Text("ĐĂNG NHẬP",
+                fontSize = 25.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                textAlign = TextAlign.Center
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Quên mật khẩu?", fontSize = 14.sp, color = Color.Blue, modifier = Modifier.clickable {
-            navController.navigate("reset_password_screen")
-        })
+        Row(
+            modifier = Modifier
+                .padding(top = 5.dp)
+        ) {
+            Text("Bạn có thể tạo tài khoản?", fontSize = 16.sp, color = Color.White)
+            Text("Đăng ký",
+                fontSize = 18.sp,
+                color = Color.White,
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clickable {
+                navController.navigate("register_screen") }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("OR", fontSize = 20.sp, color = Color.White, textDecoration = TextDecoration.Underline)
+        Button(onClick = { /*Đăng nhập google*/},
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent
+            )
+        )
+        {
+            Image(
+                painter = painterResource(id = R.drawable.google),
+                contentDescription = "logo google",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(999.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }
