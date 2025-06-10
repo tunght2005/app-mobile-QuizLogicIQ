@@ -154,13 +154,13 @@ fun CalendarRow() {
                         fontSize = 24.sp
                     )
                     Text(
-                        text = "Th " + when (date.dayOfWeek.value) {
-                            1 -> "2"
-                            2 -> "3"
-                            3 -> "4"
-                            4 -> "5"
-                            5 -> "6"
-                            6 -> "7"
+                        text = when (date.dayOfWeek.value) {
+                            1 -> "Th 2"
+                            2 -> "Th 3"
+                            3 -> "Th 4"
+                            4 -> "Th 5"
+                            5 -> "Th 6"
+                            6 -> "Th 7"
                             7 -> "CN"
                             else -> ""
                         },
