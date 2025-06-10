@@ -165,7 +165,7 @@ fun LoginScreen(navController: NavController) {
             textAlign = TextAlign.End,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /* Xử lý đăng nhập */ },
+        Button(onClick = { /* Xử lý đăng nhập */navController.navigate("home_screen") },
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF8DAAEE)

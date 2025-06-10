@@ -9,11 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.logiciq.screens.HomeScreen
 import com.example.logiciq.screens.LoginScreen
 import com.example.logiciq.screens.RegisterScreen
 import com.example.logiciq.screens.ResetPasswordScreen
 import com.example.logiciq.screens.StartScreen
 import com.example.logiciq.screens.WelcomeScreen
+
 import com.example.logiciq.ui.theme.LogicIQTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
                         composable("login_screen") { LoginScreen(navController) }
                         composable("reset_password_screen") { ResetPasswordScreen(navController) }
                         composable("register_screen") { RegisterScreen(navController) }
+                        composable("home_screen") { HomeScreen(navController) }
                     }
                 }
             }
