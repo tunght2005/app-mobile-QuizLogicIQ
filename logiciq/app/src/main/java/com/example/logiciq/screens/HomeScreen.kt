@@ -36,7 +36,13 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.DayOfWeek
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.text.font.Font
 
 
 @Composable
@@ -255,26 +261,46 @@ fun ReminderSection() {
 
 @Composable
 fun SubjectSection() {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Học Phần", fontWeight = FontWeight.Bold)
-
-        Card(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF578CDE)),
-            shape = RoundedCornerShape(12.dp)
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Column(Modifier.padding(16.dp)) {
-                Text("Name học phần", fontWeight = FontWeight.Bold, color = Color.White)
-                Text("3 thuật ngữ", color = Color.White)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                    Text(
-                        "name user",
-                        color = Color.White,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .width(330.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Name học phần", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("3 thuật ngữ", color = Color.White)
+                            Row( modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                            ) {
+                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                                Text(
+                                    "name user",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -283,20 +309,69 @@ fun SubjectSection() {
 
 @Composable
 fun ClassSection() {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Lớp Học", fontWeight = FontWeight.Bold)
-
-        Card(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            shape = RoundedCornerShape(12.dp)
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Column(Modifier.padding(16.dp)) {
-                Text("Name Lớp", fontWeight = FontWeight.Bold)
-                Row {
-                    Text("2 học phần", modifier = Modifier.padding(end = 8.dp))
-                    Text("1 thành viên")
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .width(330.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Name Lớp", fontWeight = FontWeight.Bold, color = Color.White)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(color = Color(0xFFBDD0FF))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.Menu, contentDescription = null, tint = Color.Black)
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("học phần", color = Color.Black, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+
+                                Spacer(Modifier.width(25.dp))
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(color = Color(0xFFBDD0FF))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.Black)
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("thành viên", color = Color.Black, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -307,7 +382,7 @@ fun ClassSection() {
 fun BottomNavigationBar(modifier: Modifier = Modifier) {
     NavigationBar(
         modifier = modifier,
-        containerColor = Color.White,
+        containerColor = Color(0xFF3F6ABA),
         tonalElevation = 4.dp
     ) {
         NavigationBarItem(
@@ -318,8 +393,8 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
         )
         NavigationBarItem(
             selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.Add, contentDescription = null) },
+            onClick = { },
+            icon = { Icon(Icons.Default.AddCircle, contentDescription = null) },
             label = { Text("Thêm") }
         )
         NavigationBarItem(
@@ -331,13 +406,14 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
         NavigationBarItem(
             selected = false,
             onClick = {},
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.logic_iq),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            },
+//            icon = {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.logic_iq),
+//                    contentDescription = "Icon minh họa cho tài khoản",
+//                    modifier = Modifier.size(24.dp)
+//                )
+//            },
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
             label = { Text("Tôi") }
         )
     }
