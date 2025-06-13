@@ -31,6 +31,6 @@
 ## 🔧 Công nghệ sử dụng
 
 - 💻 Frontend: Kotlin
-- 🔙 Backend: Node.js + Express
+- 🔙 Backend: FireBase (Node.js + Express) 
 - 🎨 Thiết kế UI: Figma
 
