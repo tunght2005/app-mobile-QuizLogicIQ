@@ -1,50 +1,49 @@
-package com.example.logiciq.screens
+package com.example.logiciq.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import com.example.logiciq.R
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import com.example.logiciq.R
+import com.example.logiciq.navigation.Routes
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun RegisterScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +57,7 @@ fun LoginScreen(navController: NavController) {
             contentDescription = "Logic IQ Logo",
             modifier = Modifier.size(320.dp)
         )
-        Text("Đăng nhập để tham gia học tập!",
+        Text("Đăng ký để tham gia học tập!",
             style = TextStyle(
                 fontSize = 20.sp,
                 lineHeight = 50.sp,
@@ -71,6 +70,7 @@ fun LoginScreen(navController: NavController) {
         )
 
         var username by rememberSaveable { mutableStateOf("") }
+        var email by rememberSaveable { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false)}
 
@@ -83,6 +83,39 @@ fun LoginScreen(navController: NavController) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "User Icon",
+                    tint = Color(0xFFFFFFFF),
+                    modifier = Modifier.size(35.dp)
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xCCCCCCCC),
+                            Color(0xFF8DAAEE),
+                            Color(0xFF8DAAEE)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            placeholder = { Text("Email tài khoản của bạn", color = Color.Gray)},
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Email Icon",
                     tint = Color(0xFFFFFFFF),
                     modifier = Modifier.size(35.dp)
                 )
@@ -152,26 +185,14 @@ fun LoginScreen(navController: NavController) {
                 ),
             singleLine = true
         )
-        Text(
-            "Quên mật khẩu?",
-            fontSize = 16.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-            navController.navigate("reset_password_screen")}
-                .padding(8.dp),
-            textAlign = TextAlign.End,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /* Xử lý đăng nhập */navController.navigate("home_screen") },
+        Spacer(modifier = Modifier.height(30.dp))
+        Button(onClick = { /* Xử lý gửi mật khẩu qua email */ },
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF8DAAEE)
             )
-            ) {
-            Text("ĐĂNG NHẬP",
+        ) {
+            Text("ĐĂNG KÝ",
                 fontSize = 25.sp,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -183,8 +204,8 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier
                 .padding(top = 5.dp)
         ) {
-            Text("Bạn có thể tạo tài khoản?", fontSize = 16.sp, color = Color.White)
-            Text("Đăng ký",
+            Text("Bạn đã có tài khoản?", fontSize = 16.sp, color = Color.White)
+            Text("Đăng Nhập",
                 fontSize = 18.sp,
                 color = Color.White,
                 textDecoration = TextDecoration.Underline,
@@ -192,24 +213,7 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier
                     .padding(start = 2.dp)
                     .clickable {
-                navController.navigate("register_screen") }
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("OR", fontSize = 20.sp, color = Color.White, textDecoration = TextDecoration.Underline)
-        Button(onClick = { /*Đăng nhập google*/},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent
-            )
-        )
-        {
-            Image(
-                painter = painterResource(id = R.drawable.google),
-                contentDescription = "logo google",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(999.dp)),
-                contentScale = ContentScale.Crop
+                        navController.navigate(Routes.LOGIN) }
             )
         }
     }

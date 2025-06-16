@@ -1,4 +1,4 @@
-package com.example.logiciq.screens
+package com.example.logiciq.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.logiciq.R
+import com.example.logiciq.navigation.Routes
 
 @Composable
 fun ResetPasswordScreen(navController: NavController) {
@@ -145,7 +146,7 @@ fun ResetPasswordScreen(navController: NavController) {
                 modifier = Modifier
                     .padding(start = 2.dp)
                     .clickable {
-                        navController.navigate("register_screen") }
+                        navController.navigate(Routes.REGISTER) }
             )
         }
     }

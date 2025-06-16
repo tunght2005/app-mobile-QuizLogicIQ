@@ -1,4 +1,4 @@
-package com.example.logiciq.screens
+package com.example.logiciq.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.logiciq.R
+import com.example.logiciq.navigation.Routes
 
 @Composable
 fun StartScreen(navController: NavController) {
@@ -48,7 +49,7 @@ fun StartScreen(navController: NavController) {
                 .padding(30.dp)
         )
         Spacer(modifier = Modifier.height(80.dp))
-        Button(onClick = { navController.navigate("login_screen")},
+        Button(onClick = { navController.navigate(Routes.LOGIN)},
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .width(200.dp)

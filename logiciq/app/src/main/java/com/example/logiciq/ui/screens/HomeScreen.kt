@@ -1,4 +1,4 @@
-package com.example.logiciq.screens
+package com.example.logiciq.ui.screens
 
 import android.widget.Space
 import androidx.compose.foundation.background
@@ -351,7 +351,7 @@ fun ClassSection() {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Menu, contentDescription = null, tint = Color.Black)
                                         Spacer(Modifier.width(4.dp))
-                                        Text("học phần", color = Color.Black, fontWeight = FontWeight.SemiBold)
+                                        Text("1 học phần", color = Color.Black, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
 
@@ -366,7 +366,7 @@ fun ClassSection() {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.Black)
                                         Spacer(Modifier.width(4.dp))
-                                        Text("thành viên", color = Color.Black, fontWeight = FontWeight.SemiBold)
+                                        Text("1 members", color = Color.Black, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -383,25 +383,22 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
     NavigationBar(
         modifier = modifier,
         containerColor = Color(0xFF3F6ABA),
-        tonalElevation = 4.dp
+        tonalElevation = 8.dp
     ) {
         NavigationBarItem(
             selected = true,
             onClick = {},
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Home") }
+            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White)}
         )
         NavigationBarItem(
             selected = false,
             onClick = { },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = null) },
-            label = { Text("Thêm") }
+            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White) }
         )
         NavigationBarItem(
             selected = false,
             onClick = {},
-            icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-            label = { Text("Danh sách") }
+            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White) }
         )
         NavigationBarItem(
             selected = false,
@@ -413,8 +410,7 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
 //                    modifier = Modifier.size(24.dp)
 //                )
 //            },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
-            label = { Text("Tôi") }
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White)}
         )
     }
 }

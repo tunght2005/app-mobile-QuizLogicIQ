@@ -1,4 +1,4 @@
-package com.example.logiciq.screens
+package com.example.logiciq.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,13 +14,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import com.example.logiciq.R
+import com.example.logiciq.navigation.Routes
 
 @Composable
 fun WelcomeScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(1000L)
-        navController.navigate("start_screen") {
-            popUpTo("welcome_screen") { inclusive = true }
+        navController.navigate(Routes.START) {
+            popUpTo(Routes.WELCOME) { inclusive = true }
         }
     }
 
