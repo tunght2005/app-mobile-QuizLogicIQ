@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.text.font.Font
+import com.example.logiciq.navigation.Routes
 
 
 @Composable
@@ -65,6 +66,7 @@ fun HomeScreen(navController: NavController) {
         }
 
         BottomNavigationBar(
+            navController = navController,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
@@ -378,31 +380,99 @@ fun ClassSection() {
     }
 }
 
+//@Composable
+//fun BottomNavigationBar(modifier: Modifier = Modifier) {
+//    NavigationBar(
+//        modifier = modifier,
+//        containerColor = Color(0xFF3F6ABA),
+//        tonalElevation = 8.dp
+//    ) {
+//        NavigationBarItem(
+//            selected = false,
+//            onClick = {},
+//            icon = {
+//                Box(
+//                    modifier = Modifier
+//                        .size(48.dp)
+//                        .background(
+//                            color = Color(0xFF6FA8DC),
+//                            shape = CircleShape
+//                        )
+//                        .padding(6.dp),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Home,
+//                        contentDescription = null,
+//                        modifier = Modifier.size(36.dp),
+//                        tint = Color.White
+//                    )
+//                }
+//            }
+//        )
+//
+//        NavigationBarItem(
+//            selected = false,
+//            onClick = { },
+//            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
+//        )
+//        NavigationBarItem(
+//            selected = false,
+//            onClick = {},
+//            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
+//        )
+//        NavigationBarItem(
+//            selected = false,
+//            onClick = {},
+////            icon = {
+////                Icon(
+////                    painter = painterResource(id = R.drawable.logic_iq),
+////                    contentDescription = "Icon minh họa cho tài khoản",
+////                    modifier = Modifier.size(24.dp)
+////                )
+////            },
+//            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White)}
+//        )
+//    }
+//}
 @Composable
-fun BottomNavigationBar(modifier: Modifier = Modifier) {
+fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier) {
     NavigationBar(
         modifier = modifier,
         containerColor = Color(0xFF3F6ABA),
         tonalElevation = 8.dp
     ) {
         NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White)}
+            selected = false,
+            onClick = { navController.navigate(Routes.HOME) },
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color(0xFF6FA8DC), shape = CircleShape)
+                        .padding(6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White)
+                }
+            }
         )
+
         NavigationBarItem(
             selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White) }
+            onClick = { /* Navigate to Add screen */ },
+            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
         )
+
         NavigationBarItem(
             selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White) }
+            onClick = { /* Navigate to Calendar screen */ },
+            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
         )
+
         NavigationBarItem(
             selected = false,
-            onClick = {},
+            onClick = { navController.navigate(Routes.PROFILE) },
 //            icon = {
 //                Icon(
 //                    painter = painterResource(id = R.drawable.logic_iq),
@@ -410,7 +480,7 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
 //                    modifier = Modifier.size(24.dp)
 //                )
 //            },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(24.dp), tint = Color.White)}
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
         )
     }
 }

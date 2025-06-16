@@ -12,7 +12,7 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
 //    composable(Routes.CLASS) { ClassScreen(navController) }
 //    composable(Routes.QUIZ) { QuizScreen(navController) }
 //    composable(Routes.QUIZ_DETAIL) { QuizDetailScreen(navController) }
-//    composable(Routes.PROFILE) { ProfileScreen(navController) }
-//    composable(Routes.SETTING) { SettingScreen(navController) }
+    composable(Routes.PROFILE) { ProfileScreen(navController) }
+    composable(Routes.SETTING) { SettingsScreen(navController) }
 //    composable(Routes.CHANGE_PASSWORD) { ChangePasswordScreen(navController) }
 }
