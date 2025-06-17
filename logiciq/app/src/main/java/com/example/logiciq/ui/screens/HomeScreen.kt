@@ -44,10 +44,12 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.text.font.Font
 import com.example.logiciq.navigation.Routes
+import com.example.logiciq.ui.components.AddOptionsBottomSheet
 
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    var showAddSheet by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -67,8 +69,28 @@ fun HomeScreen(navController: NavController) {
 
         BottomNavigationBar(
             navController = navController,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
+            onAddClick = {
+                // nhấn nút Add
+                showAddSheet = true
+            }
         )
+        // Modal Bottom Sheet
+        if (showAddSheet) {
+            AddOptionsBottomSheet(
+                onCreateSubject = {
+                    navController.navigate("create_subject")
+                    showAddSheet = false
+                },
+                onCreateClass = {
+                    navController.navigate("create_class")
+                    showAddSheet = false
+                },
+                onDismiss = {
+                    showAddSheet = false
+                }
+            )
+        }
     }
 }
 
@@ -381,7 +403,7 @@ fun ClassSection() {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier) {
+fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier, onAddClick: () -> Unit) {
     NavigationBar(
         modifier = modifier,
         containerColor = Color(0xFF3F6ABA),
@@ -405,8 +427,15 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
 
         NavigationBarItem(
             selected = false,
-            onClick = { /* Navigate to Add screen */ },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
+            onClick = onAddClick,
+            icon = {
+                Icon(
+                    Icons.Default.AddCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = Color.White
+                )
+            }
         )
 
         NavigationBarItem(

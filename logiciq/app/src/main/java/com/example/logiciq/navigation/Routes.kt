@@ -14,6 +14,8 @@ object Routes {
     const val HOME = "home_screen"
     const val LIBRARY = "library_screen"
     const val CLASS = "class_screen"
+    const val newCLASS = "create_class"
+    const val newSUBJECT = "create_subject"
     const val QUIZ = "quiz_screen"
     const val QUIZ_DETAIL = "quiz_detail_screen"
 
