@@ -18,7 +18,7 @@ import com.example.logiciq.ui.components.SubjectTabContent
 @Composable
 fun LibraryScreen(navController: NavController) {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Học phần", "Lớp học")
+    val tabs = listOf("HỌC PHẦN", "LỚP HỌC")
 
     Column(
         modifier = Modifier
@@ -71,6 +71,7 @@ fun LibraryScreen(navController: NavController) {
                     text = {
                         Text(
                             text = title,
+                            fontSize = 16.sp,
                             color = if (selectedTab == index) Color.White else Color.LightGray
                         )
                     }
@@ -90,7 +91,7 @@ fun LibraryScreen(navController: NavController) {
             if (selectedTab == 0) {
                 SubjectTabContent()
             } else {
-                ClassTabContent()
+                ClassTabContent(navController)
             }
         }
     }

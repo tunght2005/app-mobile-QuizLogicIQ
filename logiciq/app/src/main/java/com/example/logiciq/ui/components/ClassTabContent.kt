@@ -16,9 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.navigation.NavController
+import com.example.logiciq.navigation.Routes
 
 @Composable
-fun ClassTabContent(
+fun ClassTabContent( navController: NavController,
     onClassClick: () -> Unit = {}
 ) {
     LazyColumn(
@@ -32,6 +34,8 @@ fun ClassTabContent(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
+//                    .clickable { onClassClick(...) } viewmodel để điều hướng đúng class
+                    .clickable { navController.navigate(Routes.CLASS)} // Chưa api nên định huognws trực tiêp qua trang Class
             ) {
                 Box(
                     modifier = Modifier
