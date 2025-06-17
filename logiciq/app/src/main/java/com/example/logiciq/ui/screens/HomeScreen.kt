@@ -380,61 +380,6 @@ fun ClassSection() {
     }
 }
 
-//@Composable
-//fun BottomNavigationBar(modifier: Modifier = Modifier) {
-//    NavigationBar(
-//        modifier = modifier,
-//        containerColor = Color(0xFF3F6ABA),
-//        tonalElevation = 8.dp
-//    ) {
-//        NavigationBarItem(
-//            selected = false,
-//            onClick = {},
-//            icon = {
-//                Box(
-//                    modifier = Modifier
-//                        .size(48.dp)
-//                        .background(
-//                            color = Color(0xFF6FA8DC),
-//                            shape = CircleShape
-//                        )
-//                        .padding(6.dp),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Home,
-//                        contentDescription = null,
-//                        modifier = Modifier.size(36.dp),
-//                        tint = Color.White
-//                    )
-//                }
-//            }
-//        )
-//
-//        NavigationBarItem(
-//            selected = false,
-//            onClick = { },
-//            icon = { Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
-//        )
-//        NavigationBarItem(
-//            selected = false,
-//            onClick = {},
-//            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
-//        )
-//        NavigationBarItem(
-//            selected = false,
-//            onClick = {},
-////            icon = {
-////                Icon(
-////                    painter = painterResource(id = R.drawable.logic_iq),
-////                    contentDescription = "Icon minh họa cho tài khoản",
-////                    modifier = Modifier.size(24.dp)
-////                )
-////            },
-//            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White)}
-//        )
-//    }
-//}
 @Composable
 fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier) {
     NavigationBar(
@@ -466,7 +411,7 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
 
         NavigationBarItem(
             selected = false,
-            onClick = { /* Navigate to Calendar screen */ },
+            onClick = { navController.navigate(Routes.LIBRARY)},
             icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
         )
 

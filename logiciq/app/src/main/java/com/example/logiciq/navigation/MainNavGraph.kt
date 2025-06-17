@@ -8,8 +8,8 @@ import com.example.logiciq.ui.screens.*
 
 fun NavGraphBuilder.mainGraph(navController: NavHostController) {
     composable(Routes.HOME) { HomeScreen(navController) }
-//    composable(Routes.SUBJECT) { SubjectScreen(navController) }
-//    composable(Routes.CLASS) { ClassScreen(navController) }
+    composable(Routes.LIBRARY) { LibraryScreen(navController) }
+    composable(Routes.CLASS) { ClassScreen(navController) }
 //    composable(Routes.QUIZ) { QuizScreen(navController) }
 //    composable(Routes.QUIZ_DETAIL) { QuizDetailScreen(navController) }
     composable(Routes.PROFILE) { ProfileScreen(navController) }

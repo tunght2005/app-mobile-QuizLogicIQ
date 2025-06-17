@@ -12,7 +12,7 @@ object Routes {
 
     // Main screens (sau khi đăng nhập)
     const val HOME = "home_screen"
-    const val SUBJECT = "subject_screen"
+    const val LIBRARY = "library_screen"
     const val CLASS = "class_screen"
     const val QUIZ = "quiz_screen"
     const val QUIZ_DETAIL = "quiz_detail_screen"
