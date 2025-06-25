@@ -14,16 +14,17 @@ import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import com.example.logiciq.ui.components.MemberTabContent
 import com.example.logiciq.ui.components.SubjectTabContent
+import com.example.logiciq.ui.components.TestTabContent
 
 @Composable
 fun ClassScreen(navController: NavController, className: String = "NAME LỚP") {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("HỌC PHẦN", "THÀNH VIÊN")
+    val tabs = listOf("HỌC PHẦN","BÀI THI" ,"THÀNH VIÊN")
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A1D42))
+            .background(Color(0xFF1E293B))
     ) {
         // Header
         Box(
@@ -88,10 +89,10 @@ fun ClassScreen(navController: NavController, className: String = "NAME LỚP") 
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (selectedTab == 0) {
-                SubjectTabContent()
-            } else {
-                MemberTabContent()
+            when (selectedTab) {
+                0 -> SubjectTabContent(navController)
+                1 -> TestTabContent(navController)
+                2 -> MemberTabContent()
             }
         }
     }

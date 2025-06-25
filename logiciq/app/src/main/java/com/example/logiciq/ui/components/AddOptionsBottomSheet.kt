@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 fun AddOptionsBottomSheet(
     onCreateSubject: () -> Unit,
     onCreateClass: () -> Unit,
+    onCreateTest: () -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -65,6 +67,36 @@ fun AddOptionsBottomSheet(
             }
 
             Button(
+                onClick = onCreateTest,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF86B5FB)),
+                shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Icon(
+                        Icons.Default.List,
+                        contentDescription = null,
+                        tint = Color(0xFF007AFF),
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.width(30.dp))
+                    Text(
+                        "Tạo Bài Thi",
+                        color = Color(0xFFFA5255),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Button(
                 onClick = onCreateClass,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,6 +125,7 @@ fun AddOptionsBottomSheet(
                     )
                 }
             }
+
         }
     }
 }

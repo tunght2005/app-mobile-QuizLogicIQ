@@ -79,11 +79,15 @@ fun HomeScreen(navController: NavController) {
         if (showAddSheet) {
             AddOptionsBottomSheet(
                 onCreateSubject = {
-                    navController.navigate("create_subject")
+                    navController.navigate(Routes.NEWSUBJECT)
                     showAddSheet = false
                 },
                 onCreateClass = {
-                    navController.navigate("create_class")
+                    navController.navigate(Routes.NEWCLASS)
+                    showAddSheet = false
+                },
+                onCreateTest = {
+                    navController.navigate(Routes.NEWTEST)
                     showAddSheet = false
                 },
                 onDismiss = {

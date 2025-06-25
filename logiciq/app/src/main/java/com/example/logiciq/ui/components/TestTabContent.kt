@@ -18,7 +18,7 @@ import androidx.navigation.NavController
 import com.example.logiciq.navigation.Routes
 
 @Composable
-fun SubjectTabContent(navController: NavController) {
+fun TestTabContent(navController: NavController) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -29,7 +29,7 @@ fun SubjectTabContent(navController: NavController) {
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
-                    .clickable { navController.navigate(Routes.SUBJECT)}
+                    .clickable { navController.navigate(Routes.EXAM)}
             ) {
                 Box(
                     modifier = Modifier
@@ -40,8 +40,8 @@ fun SubjectTabContent(navController: NavController) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Name học phần", fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("3 thuật ngữ", color = Color.White)
+                        Text("Name bài thi", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("3 câu hỏi", color = Color.White)
                         Row( modifier = Modifier
                             .fillMaxSize()
                             .padding(10.dp)

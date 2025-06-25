@@ -23,7 +23,7 @@ fun LibraryScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A1D42))
+            .background(Color(0xFF1E293B))
     ) {
         // Header
         Box(
@@ -89,7 +89,7 @@ fun LibraryScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (selectedTab == 0) {
-                SubjectTabContent()
+                SubjectTabContent(navController)
             } else {
                 ClassTabContent(navController)
             }
