@@ -105,7 +105,7 @@ fun ProfileScreen(navController: NavController) {
             }
             Spacer(Modifier.height(24.dp))
             Button(
-                onClick = { /* TODO: Lịch sử hoạt động */ },
+                onClick = { navController.navigate(Routes.HISTORY) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F6ABA)),
                 modifier = Modifier
                     .width(330.dp)

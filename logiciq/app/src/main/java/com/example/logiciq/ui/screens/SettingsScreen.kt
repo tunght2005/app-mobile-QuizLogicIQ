@@ -14,6 +14,10 @@ import com.example.logiciq.R
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,11 +27,12 @@ import com.example.logiciq.ui.components.SettingField
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    userName: String = "demoname",
-    email: String = "demo@gmail.com",
-    password: String = "***********",
     onLogoutClick: () -> Unit = {}
 ) {
+    var userName by remember { mutableStateOf("demoname") }
+    var email by remember { mutableStateOf("demo@gmail.com") }
+    var password by remember { mutableStateOf("***********") }
+    var showSaveMessage by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,12 +77,51 @@ fun SettingsScreen(
             textAlign = TextAlign.Start
         )
 
-        SettingField(label = "Tên người dùng", value = userName, icon = Icons.Default.ArrowForward)
-        Spacer(modifier = Modifier.height(20.dp))
-        SettingField(label = "Email", value = email, icon = Icons.Default.ArrowForward)
-        Spacer(modifier = Modifier.height(20.dp))
-        SettingField(label = "Mật khẩu", value = password, icon = Icons.Default.ArrowForward)
+        SettingField(
+            label = "Tên người dùng",
+            value = userName,
+            icon = Icons.Default.ArrowForward,
+            onValueChange = { userName = it }
+        )
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        SettingField(
+            label = "Email",
+            value = email,
+            icon = Icons.Default.ArrowForward,
+            onValueChange = { email = it }
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        SettingField(
+            label = "Mật khẩu",
+            value = password,
+            icon = Icons.Default.ArrowForward,
+            onValueChange = { password = it }
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        // Nút Lưu
+        Button(
+            onClick = {
+                showSaveMessage = true
+                // TODO: Gọi ViewModel nếu cần lưu backend
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Lưu Thay Đổi", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+        if (showSaveMessage) {
+            Text(
+                text = "Thông tin đã được lưu!",
+                color = Color.Green,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
         Spacer(modifier = Modifier.height(36.dp))
 
         Button(

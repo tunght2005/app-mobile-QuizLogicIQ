@@ -1,7 +1,11 @@
 package com.example.logiciq.ui.screens
 
+import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.Space
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -36,35 +42,86 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.DayOfWeek
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.ui.text.font.Font
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.zIndex
 import com.example.logiciq.navigation.Routes
 import com.example.logiciq.ui.components.AddOptionsBottomSheet
-
+import java.text.Normalizer
+import java.util.regex.Pattern
+import androidx.compose.ui.text.input.ImeAction
+import com.example.logiciq.ui.components.ResultOverlay
+import com.example.logiciq.ui.components.SearchErrorDialog
+import com.example.logiciq.ui.components.CreateReminderDialog
 
 @Composable
 fun HomeScreen(navController: NavController) {
     var showAddSheet by remember { mutableStateOf(false) }
+    var search by rememberSaveable { mutableStateOf("") }
+    var results by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    var showResult by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF84B6F4))
     ) {
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 64.dp, top = 30.dp) // dành chỗ cho BottomNavigation
+                .padding(bottom = 120.dp)
         ) {
-            item { TopBar() }
+            item {
+                TopBar(
+                    search = search,
+                    onSearchChange = { search = it },
+                    onSearchSubmit = {
+                        val query = search.removeDiacritics()
+                        results = mockData.filter {
+                            it.title.removeDiacritics().contains(query)
+                        }
+                        showResult = true
+                    },
+                    onClear = {
+                        showResult = false
+                        search = ""
+                    },
+                    onShowError = {
+                        showError = true
+                    }
+                )
+            }
             item { CalendarRow() }
             item { ReminderSection() }
-            item { SubjectSection() }
-            item { ClassSection() }
+            item { SubjectSection(navController) }
+            item { ClassSection(navController) }
+            item { ExamSection(navController) }
+        }
+
+        if (showResult) {
+            ResultOverlay(
+                results = results,
+                onClose = { showResult = false },
+                navController
+            )
+        }
+        if (showError) {
+            SearchErrorDialog(
+                title = "Lỗi tìm kiếm",
+                message = "Vui lòng nhập từ khóa để tìm kiếm.",
+                onDismiss = { showError = false }
+            )
         }
 
         BottomNavigationBar(
@@ -98,26 +155,69 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
+//giả lập model cho học phần, lớp, bài thi
+data class SearchResult(
+    val type: String,
+    val title: String,
+    val subtitle: String,
+    val user: String
+)
+
+fun String.removeDiacritics(): String {
+    val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+    return Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+        .matcher(normalized)
+        .replaceAll("")
+        .lowercase()
+}
+val mockData = listOf(
+    SearchResult("Học Phần", "Name học phần", "3 thuật ngữ", "name user"),
+    SearchResult("Học Phần", "Name học ", "3 thuật ngữ", "name user"),
+    SearchResult("Học Phần", "Name ", "3 thuật ngữ", "name user"),
+    SearchResult("Lớp Học", "Name Lớp", "2 học phần","11 members"),
+    SearchResult("Lớp Học", "Name Lớp", "2 học phần","11 members"),
+    SearchResult("Lớp Học", "Name Lớp", "2 học phần","11 members"),
+    SearchResult("Lớp Học", "Name Lớp", "2 học phần","11 members"),
+    SearchResult("Lớp Học", "Name Lớp", "2 học phần","11 members"),
+    SearchResult("Bài thi", "Name bài thi", "3 câu hỏi", "name user")
+)
+
 @Composable
-fun TopBar() {
+fun TopBar(
+    search: String,
+    onSearchChange: (String) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onClear: () -> Unit,
+    onShowError: () -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 2.dp),
+            .padding(start = 20.dp, end = 2.dp, top = 40.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        var search by rememberSaveable { mutableStateOf("") }
         TextField(
             value = search,
-            onValueChange = { search = it },
-            placeholder = {
-                Text("Search", color = Color.Gray)
-            },
-            modifier = Modifier
-                .width(270.dp),
+            onValueChange = onSearchChange,
+            placeholder = { Text("Search", color = Color.Gray) },
             singleLine = true,
             shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .width(270.dp),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    keyboardController?.hide()
+                    if (search.isBlank()) {
+                        onShowError()
+                    } else {
+                        onSearchSubmit()
+                    }
+                }
+            ),
+
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -128,6 +228,11 @@ fun TopBar() {
                         .padding(start = 3.dp)
                 )
             },
+            trailingIcon = {
+                if (search.isNotEmpty()) {
+                    Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.clickable { onClear() })
+                }
+            },
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -137,8 +242,6 @@ fun TopBar() {
                 unfocusedPlaceholderColor = Color.Gray
             )
         )
-
-
         Icon(
             painter = painterResource(id = R.drawable.logic_iq),
             contentDescription = null,
@@ -218,6 +321,8 @@ fun CalendarRow() {
 
 @Composable
 fun ReminderSection() {
+    //Xử lí viewModel để lấy api cho lịch
+    var showDialog by remember { mutableStateOf(false) }
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Lời Nhắc Nhở", fontWeight = FontWeight.Bold)
         LazyRow(
@@ -225,7 +330,7 @@ fun ReminderSection() {
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         ) {
-            item {
+            items(4) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF8572FF)),
                     shape = RoundedCornerShape(12.dp),
@@ -277,18 +382,30 @@ fun ReminderSection() {
         }
         // Add form xữ lí tạo lịch với modal "CHỈ" lịch trong ngày (update lịch tự lựa chọn)
         Button(
-            onClick = { },
+            onClick = { showDialog = true },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDE496E)),
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier.padding(top = 8.dp, start = 24.dp)
         ) {
             Text("Tạo Lịch", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
+
+        if (showDialog) {
+            CreateReminderDialog(
+                onDismiss = { showDialog = false },
+                onSave = { title, start, end ->
+                    // TODO: Lưu lịch vào ViewModel hoặc danh sách
+                    Log.d("Reminder", "$title: $start - $end")
+                }
+            )
+        }
+
     }
 }
 
 @Composable
-fun SubjectSection() {
+fun SubjectSection(navController: NavController ) {
+    //view ở đây
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Học Phần", fontWeight = FontWeight.Bold)
         LazyRow(
@@ -297,13 +414,14 @@ fun SubjectSection() {
                 .padding(top = 8.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            item {
+            items(3) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .width(330.dp)
+                        .clickable { navController.navigate(Routes.SUBJECT)}
                 ) {
                     Box(
                         modifier = Modifier
@@ -336,7 +454,7 @@ fun SubjectSection() {
 }
 
 @Composable
-fun ClassSection() {
+fun ClassSection(navController: NavController) {
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Lớp Học", fontWeight = FontWeight.Bold)
         LazyRow(
@@ -345,13 +463,14 @@ fun ClassSection() {
                 .padding(top = 8.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            item {
+            items(3) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .width(330.dp)
+                        .clickable { navController.navigate(Routes.CLASS)}
                 ) {
                     Box(
                         modifier = Modifier
@@ -405,6 +524,56 @@ fun ClassSection() {
         }
     }
 }
+
+@Composable
+fun ExamSection(navController: NavController) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+        Text("Bài Thi", fontWeight = FontWeight.Bold)
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            items(3) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .width(330.dp)
+                        .clickable { navController.navigate(Routes.TEST)}
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Name bài thi", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("3 câu hỏi", color = Color.White)
+                            Row( modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                            ) {
+                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                                Text(
+                                    "name user",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier, onAddClick: () -> Unit) {
