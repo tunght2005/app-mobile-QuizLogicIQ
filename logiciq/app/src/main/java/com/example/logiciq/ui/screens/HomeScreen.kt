@@ -59,7 +59,9 @@ import com.example.logiciq.ui.components.AddOptionsBottomSheet
 import java.text.Normalizer
 import java.util.regex.Pattern
 import androidx.compose.ui.text.input.ImeAction
-
+import com.example.logiciq.ui.components.ResultOverlay
+import com.example.logiciq.ui.components.SearchErrorDialog
+import com.example.logiciq.ui.components.CreateReminderDialog
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -153,7 +155,7 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
-//giả lập model
+//giả lập model cho học phần, lớp, bài thi
 data class SearchResult(
     val type: String,
     val title: String,
@@ -246,179 +248,6 @@ fun TopBar(
             modifier = Modifier.size(120.dp),
             tint = Color.Unspecified
         )
-    }
-}
-
-@Composable
-fun ResultOverlay(results: List<SearchResult>, onClose: () -> Unit, navController: NavController) {
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 150.dp)
-            .zIndex(10f),
-        color = Color.White,
-        shape = RoundedCornerShape(24.dp),
-        tonalElevation = 8.dp
-    ) {
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Kết quả tìm kiếm", fontWeight = FontWeight.Bold)
-                    Text("Đóng", color = Color.Blue, modifier = Modifier.clickable { onClose() })
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                if (results.isEmpty()) {
-                    Text("Không tìm thấy kết quả", color = Color.Red)
-                }
-            }
-
-            items(results) { item ->
-                ResultCard(result = item, navController = navController)
-            }
-        }
-    }
-}
-@Composable
-fun SearchErrorDialog(
-    title: String,
-    message: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK", fontWeight = FontWeight.Bold, color = Color.Black)
-            }
-        },
-        title = null, // bỏ title mặc định để custom toàn bộ
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.error),
-                    contentDescription = null,
-                    tint = Color.Red,
-                    modifier = Modifier.size(56.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    title,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    message,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-        },
-        containerColor = Color(0xFFFAF0F0),
-        shape = RoundedCornerShape(16.dp)
-    )
-}
-
-
-@Composable
-fun ResultCard(result: SearchResult, navController: NavController) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(text = result.type, fontWeight = FontWeight.Bold)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF3B6DB0), RoundedCornerShape(10.dp))
-                .padding(16.dp)
-        ) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .padding(horizontal = 2.dp)
-                    .width(330.dp)
-                    .clickable {
-                        when (result.type) {
-                            "Lớp Học" -> navController.navigate(Routes.CLASS)
-                            "Học Phần" -> navController.navigate(Routes.SUBJECT)
-                            else -> navController.navigate(Routes.TEST)
-                        }
-                    }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(5.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(result.title, fontWeight = FontWeight.Bold, color = Color.White)
-                        if (result.type == "Lớp Học"){
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(top = 20.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(color = Color(0xFFBDD0FF))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Menu, contentDescription = null, tint = Color.Black)
-                                        Spacer(Modifier.width(4.dp))
-                                        Text(result.subtitle, color = Color.Black, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-
-                                Spacer(Modifier.width(10.dp))
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(color = Color(0xFFBDD0FF))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.Black)
-                                        Spacer(Modifier.width(4.dp))
-                                        Text(result.user, color = Color.Black, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-                            }
-                        } else{
-                            Text(result.subtitle, color = Color.White)
-                            Row( modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp)
-                            ) {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                                Text(
-                                    result.user,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
     }
 }
 
@@ -573,101 +402,6 @@ fun ReminderSection() {
 
     }
 }
-@Composable
-fun CreateReminderDialog(
-    onDismiss: () -> Unit,
-    onSave: (title: String, startTime: String, endTime: String) -> Unit
-) {
-    var title by remember { mutableStateOf("") }
-    var startTime by remember { mutableStateOf("") }
-    var endTime by remember { mutableStateOf("") }
-
-    val context = LocalContext.current
-
-    // State để mở TimePicker
-    var showStartPicker by remember { mutableStateOf(false) }
-    var showEndPicker by remember { mutableStateOf(false) }
-
-    if (showStartPicker) {
-        TimePickerDialog(
-            context,
-            { _, hour: Int, minute: Int ->
-                startTime = String.format("%02d:%02d", hour, minute)
-            },
-            12, 0, true
-        ).show()
-        showStartPicker = false
-    }
-
-    if (showEndPicker) {
-        TimePickerDialog(
-            context,
-            { _, hour: Int, minute: Int ->
-                endTime = String.format("%02d:%02d", hour, minute)
-            },
-            14, 0, true
-        ).show()
-        showEndPicker = false
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text("Tạo Lịch Mới", fontWeight = FontWeight.Bold)
-        },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Tiêu đề") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(onClick = { showStartPicker = true }) {
-                        Text("Chọn giờ bắt đầu")
-                    }
-                    Text(startTime.ifEmpty { "--:--" })
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(onClick = { showEndPicker = true }) {
-                        Text("Chọn giờ kết thúc")
-                    }
-                    Text(endTime.ifEmpty { "--:--" })
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (title.isNotBlank() && startTime.isNotBlank() && endTime.isNotBlank()) {
-                        onSave(title, startTime, endTime)
-                        onDismiss()
-                    }
-                }
-            ) {
-                Text("Lưu")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Hủy")
-            }
-        },
-        shape = RoundedCornerShape(16.dp)
-    )
-}
-
 
 @Composable
 fun SubjectSection(navController: NavController ) {
