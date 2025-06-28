@@ -43,5 +43,6 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
     composable(Routes.EXAM) { ExamScreen(navController) }
     composable(Routes.PROFILE) { ProfileScreen(navController) }
     composable(Routes.SETTING) { SettingsScreen(navController) }
+    composable(Routes.HISTORY) { HistoryScreen(navController) }
 //    composable(Routes.CHANGE_PASSWORD) { ChangePasswordScreen(navController) }
 }

@@ -29,7 +29,7 @@ fun TestTabContent(navController: NavController) {
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
-                    .clickable { navController.navigate(Routes.EXAM)}
+                    .clickable { navController.navigate(Routes.TEST)}
             ) {
                 Box(
                     modifier = Modifier

@@ -19,12 +19,13 @@ object Routes {
     const val NEWSUBJECT = "create_subject"
     const val SUBJECT = "suject_screen"
     const val TEST = "test_screen"
-    const val EXAM = "test_screen"
+    const val EXAM = "exam_screen"
     const val LEARNING = "learning_screen"
 
     // Profile / Setting
     const val PROFILE = "profile_screen"
     const val SETTING = "setting_screen"
+    const val HISTORY = "history_screen"
     const val CHANGE_PASSWORD = "change_password_screen"
 
     // Error / Others
