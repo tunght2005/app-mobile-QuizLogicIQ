@@ -12,13 +12,20 @@
         android:theme="@style/Theme.QuizApp">
 
         <activity android:name=".ui.auth.LoginActivity" android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.auth.RegisterActivity"/>
         <activity android:name=".ui.auth.ResetPasswordActivity"/>
+        <activity android:name=".ui.profile.ProfileActivity" />
+        <activity android:name="com.example.logiciq.ui.quiz.AddQuizTestActivity"/>
+        <activity android:name="com.example.logiciq.ui.quiz.DoQuizActivity"/>
+
+
     </application>
 </manifest>

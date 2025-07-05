@@ -9,6 +9,8 @@ import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.auth.UserProfileChangeRequest
+
 
 class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
@@ -20,9 +22,11 @@ class AuthRepository {
             val authResult = auth.signInWithCredential(credential).await()
             val firebaseUser = authResult.user ?: return Result.failure(Exception("No user returned"))
 
+            val displayName = firebaseUser.displayName ?: ""
+
             val user = User(
                 uid = firebaseUser.uid,
-                name = firebaseUser.displayName ?: "",
+                name = displayName,
                 email = firebaseUser.email ?: "",
                 photoUrl = firebaseUser.photoUrl?.toString(),
                 createdAt = Timestamp.now(),
@@ -53,20 +57,19 @@ class AuthRepository {
             val userDoc = firestore.collection("users").document(firebaseUser.uid)
             val snapshot = userDoc.get().await()
 
-            if (snapshot.exists()) {
-                // Cập nhật lần đăng nhập gần nhất
-                userDoc.update("lastLogin", FieldValue.serverTimestamp()).await()
-            } else {
-                // Nếu chưa có, tạo mới
-                val user = User(
+            if (!snapshot.exists()) {
+                val displayName = firebaseUser.displayName ?: ""
+                val newUser = User(
                     uid = firebaseUser.uid,
-                    name = firebaseUser.displayName ?: "",
+                    name = displayName,
                     email = firebaseUser.email ?: "",
                     photoUrl = firebaseUser.photoUrl?.toString(),
                     createdAt = Timestamp.now(),
                     lastLogin = Timestamp.now()
                 )
-                userDoc.set(user).await()
+                userDoc.set(newUser).await()
+            } else {
+                userDoc.update("lastLogin", FieldValue.serverTimestamp()).await()
             }
 
             val user = userDoc.get().await().toObject(User::class.java)
@@ -78,13 +81,15 @@ class AuthRepository {
         }
     }
 
-
-    suspend fun registerWithEmail(name: String, email: String, password: String, phone: String?): Result<User> {
+    suspend fun registerWithEmail(name: String, email: String, password: String): Result<User> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user ?: return Result.failure(Exception("No user returned"))
 
-            val profile = userProfileChangeRequest { displayName = name }
+            val profile = UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build()
+
             firebaseUser.updateProfile(profile).await()
 
             val user = User(
@@ -103,13 +108,16 @@ class AuthRepository {
         }
     }
 
+    fun logout() {
+        auth.signOut()
+    }
+
     suspend fun sendResetPasswordEmail(email: String): Result<Unit> {
         return try {
-            FirebaseAuth.getInstance().sendPasswordResetEmail(email).await()
+            auth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-
 }

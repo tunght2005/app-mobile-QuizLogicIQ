@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Loại câu hỏi -->
+        <TextView android:text="Loại câu hỏi:"  android:layout_height="50dp" android:layout_width="50dp"/>
+        <RadioGroup
+            android:id="@+id/rgType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/rbTwoOption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 lựa chọn"/>
+            <RadioButton
+                android:id="@+id/rbFourOption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4 lựa chọn"/>
+        </RadioGroup>
+
+        <!-- Tiêu đề -->
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tiêu đề câu hỏi"/>
+
+        <!-- Nội dung -->
+        <EditText
+            android:id="@+id/etText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nội dung câu hỏi"/>
+
+        <!-- Đáp án đúng -->
+        <EditText
+            android:id="@+id/etCorrectAnswer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Đáp án đúng"/>
+
+        <!-- Dạng 1: chỉ 1 đáp án sai -->
+        <EditText
+            android:id="@+id/etWrongAnswer1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Đáp án sai (dạng 2 lựa chọn)"/>
+
+        <!-- Dạng 2: thêm 3 đáp án sai -->
+        <EditText
+            android:id="@+id/etWrongAnswer2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Đáp án B (sai)"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/etWrongAnswer3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Đáp án C (sai)"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/etWrongAnswer4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Đáp án D (sai)"
+            android:visibility="gone"/>
+
+        <!-- Nút Lưu -->
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm câu hỏi"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -45,10 +45,10 @@ class AuthViewModel(
     }
 
     // Đăng ký mới
-    fun registerWithEmail(name: String, email: String, password: String, phone: String?) {
+    fun registerWithEmail(name: String, email: String, password: String) {
         viewModelScope.launch {
             try {
-                val result = authRepository.registerWithEmail(name, email, password, phone)
+                val result = authRepository.registerWithEmail(name, email, password)
                 _userState.value = result
             } catch (e: Exception) {
                 _userState.value = Result.failure(e)
