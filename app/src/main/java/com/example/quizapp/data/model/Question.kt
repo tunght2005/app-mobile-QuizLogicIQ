@@ -18,10 +18,9 @@ sealed class Question {
         internal val wrongPool: List<String>
     ) : Question() {
         override val type = QuestionType.TYPE2
-        val wrongAnswer: String
-            get() = wrongPool.random()
-        val options: List<String>
-            get() = listOf(correctAnswer, wrongAnswer).shuffled()
+        val options: List<String> by lazy {
+            listOf(correctAnswer, wrongPool.random()).shuffled()
+        }
     }
 
     data class Type4(
