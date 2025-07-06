@@ -1,5 +1,7 @@
 package com.example.logiciq.data.repository
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.example.logiciq.data.model.User
 import com.google.firebase.Timestamp
@@ -8,11 +10,36 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
+
+    suspend fun updateUserProfile(name: String, email: String): Result<Unit> {
+        val firebaseUser = auth.currentUser ?: return Result.failure(Exception("Người dùng chưa đăng nhập"))
+        return try {
+            val profileUpdate = userProfileChangeRequest {
+                displayName = name
+            }
+            firebaseUser.updateProfile(profileUpdate).await()
+            firebaseUser.updateEmail(email).await()
+
+            val updates = mapOf(
+                "name" to name,
+                "email" to email
+            )
+            firestore.collection("users").document(firebaseUser.uid).update(updates).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     suspend fun firebaseAuthWithGoogle(idToken: String): Result<User> {
         return try {
@@ -40,7 +67,6 @@ class AuthRepository {
 
             Result.success(user)
         } catch (e: Exception) {
-            Log.e("AuthRepo", "Google Sign-In failed", e)
             Result.failure(e)
         }
     }
@@ -53,11 +79,7 @@ class AuthRepository {
             val userDoc = firestore.collection("users").document(firebaseUser.uid)
             val snapshot = userDoc.get().await()
 
-            if (snapshot.exists()) {
-                // Cập nhật lần đăng nhập gần nhất
-                userDoc.update("lastLogin", FieldValue.serverTimestamp()).await()
-            } else {
-                // Nếu chưa có, tạo mới
+            if (!snapshot.exists()) {
                 val user = User(
                     uid = firebaseUser.uid,
                     name = firebaseUser.displayName ?: "",
@@ -67,6 +89,8 @@ class AuthRepository {
                     lastLogin = Timestamp.now()
                 )
                 userDoc.set(user).await()
+            } else {
+                userDoc.update("lastLogin", FieldValue.serverTimestamp()).await()
             }
 
             val user = userDoc.get().await().toObject(User::class.java)
@@ -78,13 +102,14 @@ class AuthRepository {
         }
     }
 
-
     suspend fun registerWithEmail(name: String, email: String, password: String, phone: String?): Result<User> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user ?: return Result.failure(Exception("No user returned"))
 
-            val profile = userProfileChangeRequest { displayName = name }
+            val profile = userProfileChangeRequest {
+                displayName = name
+            }
             firebaseUser.updateProfile(profile).await()
 
             val user = User(
@@ -112,4 +137,55 @@ class AuthRepository {
         }
     }
 
+    suspend fun uploadAvatar(uri: Uri, context: Context): Result<String> {
+        val user = auth.currentUser ?: return Result.failure(Exception("Chưa đăng nhập"))
+
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val bytes = inputStream?.readBytes() ?: return Result.failure(Exception("Không đọc được ảnh"))
+            val base64Image = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+
+            val apiKey = "a288112f95016a6959c9b795e374cf13"
+            val url = URL("https://api.imgbb.com/1/upload?key=$apiKey")
+
+            val body = "image=$base64Image"
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            connection.outputStream.use { it.write(body.toByteArray()) }
+
+            val response = connection.inputStream.bufferedReader().readText()
+            val json = org.json.JSONObject(response)
+            val imageUrl = json.getJSONObject("data").getString("url")
+
+            // Cập nhật Firebase Auth
+            val profileUpdates = userProfileChangeRequest {
+                photoUri = Uri.parse(imageUrl)
+            }
+            user.updateProfile(profileUpdates).await()
+
+            // Cập nhật Firestore
+            firestore.collection("users").document(user.uid)
+                .update("photoUrl", imageUrl).await()
+
+            println("✅ Upload thành công: $imageUrl")
+            Result.success(imageUrl)
+
+        } catch (e: Exception) {
+            println("❌ Upload error: ${e.message}")
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+
+
+
+
+    fun signOut() {
+        auth.signOut()
+    }
+
+    fun getCurrentFirebaseUser() = auth.currentUser
 }
