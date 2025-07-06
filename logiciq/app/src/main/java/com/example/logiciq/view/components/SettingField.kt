@@ -22,10 +22,16 @@ fun SettingField(
     label: String,
     value: String,
     icon: ImageVector = Icons.Default.ArrowForward,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onCommitChange: (String) -> Unit = {}
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf(value) }
+
+    // Sync lại nếu giá trị ngoài thay đổi
+    LaunchedEffect(value) {
+        text = value
+    }
 
     Box(
         modifier = Modifier
@@ -82,7 +88,8 @@ fun SettingField(
                     .padding(5.dp)
                     .clickable {
                         if (isEditing) {
-                            onValueChange(text) // cập nhật ra ngoài
+                            onValueChange(text)      // Cập nhật biến ngoài
+                            onCommitChange(text)     // Gọi ViewModel cập nhật Firestore
                         }
                         isEditing = !isEditing
                     }

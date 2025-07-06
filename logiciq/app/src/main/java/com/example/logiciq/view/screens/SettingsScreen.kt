@@ -5,35 +5,68 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.*
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.*
-import com.example.logiciq.R
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.logiciq.R
 import com.example.logiciq.view.components.SettingField
+import com.example.logiciq.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
+    viewModel: UserViewModel = viewModel(),
     onLogoutClick: () -> Unit = {}
 ) {
-    var userName by remember { mutableStateOf("demoname") }
-    var email by remember { mutableStateOf("demo@gmail.com") }
+    val user by viewModel.user
+    val updateResult by viewModel.updateResult
+
+    var userName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("***********") }
     var showSaveMessage by remember { mutableStateOf(false) }
-    Column(
+
+    // Load user info từ Firestore khi vào màn hình
+    LaunchedEffect(Unit) {
+        viewModel.loadUser()
+    }
+
+    // Cập nhật UI khi có user
+    LaunchedEffect(user) {
+        user?.let {
+            userName = it.name
+            email = it.email
+        }
+    }
+
+    // Xử lý khi cập nhật xong
+    LaunchedEffect(updateResult) {
+        updateResult?.let { result ->
+            if (result.isSuccess) {
+                showSaveMessage = true
+            } else {
+                showSaveMessage = false
+            }
+            delay(2000)
+            viewModel.resetUpdateResult()
+            showSaveMessage = false
+        }
+    }
+
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1E293B))
@@ -47,7 +80,7 @@ fun SettingsScreen(
                 .padding(top = 58.dp, start = 6.dp, end = 6.dp, bottom = 40.dp)
         ) {
             IconButton(
-                onClick = {navController.popBackStack()},
+                onClick = { navController.popBackStack() },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -67,6 +100,7 @@ fun SettingsScreen(
         }
 
         Spacer(modifier = Modifier.height(30.dp))
+
         Text(
             text = "Thông tin cá nhân",
             fontSize = 20.sp,
@@ -81,7 +115,10 @@ fun SettingsScreen(
             label = "Tên người dùng",
             value = userName,
             icon = Icons.Default.ArrowForward,
-            onValueChange = { userName = it }
+            onValueChange = { userName = it },
+            onCommitChange = {
+                viewModel.updateUser(name = it, email = email)
+            }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -90,7 +127,10 @@ fun SettingsScreen(
             label = "Email",
             value = email,
             icon = Icons.Default.ArrowForward,
-            onValueChange = { email = it }
+            onValueChange = { email = it },
+            onCommitChange = {
+                viewModel.updateUser(name = userName, email = it)
+            }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -101,12 +141,12 @@ fun SettingsScreen(
             icon = Icons.Default.ArrowForward,
             onValueChange = { password = it }
         )
+
         Spacer(modifier = Modifier.height(10.dp))
-        // Nút Lưu
+
         Button(
             onClick = {
-                showSaveMessage = true
-                // TODO: Gọi ViewModel nếu cần lưu backend
+                viewModel.updateUser(userName, email)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             modifier = Modifier.fillMaxWidth(),
@@ -114,6 +154,7 @@ fun SettingsScreen(
         ) {
             Text("Lưu Thay Đổi", color = Color.White, fontWeight = FontWeight.Bold)
         }
+
         if (showSaveMessage) {
             Text(
                 text = "Thông tin đã được lưu!",
@@ -121,20 +162,34 @@ fun SettingsScreen(
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
+        } else if (updateResult?.isFailure == true) {
+            Text(
+                text = "Cập nhật thất bại: ${updateResult?.exceptionOrNull()?.message}",
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
+
         Spacer(modifier = Modifier.height(36.dp))
 
-        Button(
-            onClick = onLogoutClick, // Xử lí viewModel cho nút (đây nha Dũng)
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-            modifier = Modifier.width(150.dp),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(2.dp, Color.White)
-        ) {
-            Text("Đăng Xuất", color = Color.White)
-        }
+            Button(
+                onClick = {
+                    viewModel.logout()              // Đăng xuất khỏi Firebase
+                    onLogoutClick()                 // Chuyển sang AuthNavGraph
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                modifier = Modifier
+                    .width(150.dp)
+                    .padding(top = 24.dp),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(2.dp, Color.White)
+            ) {
+                Text("Đăng Xuất", color = Color.White)
+            }
 
-        Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.weight(1f))
 
         Image(
             painter = painterResource(R.drawable.logic_iq),

@@ -1,14 +1,16 @@
 package com.example.logiciq.navigation
 
 object Routes {
+    // Root graphs
+    const val AUTH = "auth"          // 👈 Thêm dòng này
+    const val MAIN = "main"          // (Tuỳ chọn, nếu bạn tách nav graph thành authGraph & mainGraph)
+
     // Auth screens
     const val WELCOME = "welcome_screen"
     const val START = "start_screen"
     const val LOGIN = "login_screen"
     const val REGISTER = "register_screen"
     const val RESET = "reset_password_screen"
-//    const val CONFIRM = "confirm_screen"
-//    const val VERIFY_CODE = "verify_code_screen"
 
     // Main screens (sau khi đăng nhập)
     const val HOME = "home_screen"
