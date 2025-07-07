@@ -20,5 +20,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "QuizApp"
+rootProject.name = "quiz-fcm-backend"
 include(":app")
  

@@ -8,6 +8,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.logiciq.R
+import com.example.logiciq.ui.`class`.FirestoreTestActivity
+import com.example.logiciq.ui.quiz.QuizDetailActivity
+import com.example.logiciq.ui.schedule.FakeScheduleActivity
 import com.example.logiciq.utils.collectIn
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -85,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
-//        startActivity(Intent(this, DoQuizActivity::class.java))
+        startActivity(Intent(this, QuizDetailActivity::class.java))
         finish()
     }
 

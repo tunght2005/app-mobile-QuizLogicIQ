@@ -41,6 +41,12 @@ android {
         viewBinding = true
         dataBinding = true
     }
+
+    packagingOptions {
+        exclude("google/**")
+        exclude("META-INF/*.kotlin_module")
+    }
+
 }
 
 dependencies {
@@ -75,11 +81,13 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.2.0")
     implementation("com.google.firebase:firebase-messaging-ktx:23.1.0")
 
+
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation ("com.google.android.gms:play-services-auth:21.0.0")
 
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
 }
 apply(plugin = "com.google.gms.google-services")

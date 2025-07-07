@@ -9,23 +9,34 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:name=".fcm.FirebaseInitializer"
         android:theme="@style/Theme.QuizApp">
+
+
+        <service
+            android:name=".fcm.FcmService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <activity android:name=".ui.auth.LoginActivity" android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.auth.RegisterActivity"/>
         <activity android:name=".ui.auth.ResetPasswordActivity"/>
         <activity android:name=".ui.profile.ProfileActivity" />
-        <activity android:name="com.example.logiciq.ui.quiz.AddQuizTestActivity"/>
-        <activity android:name="com.example.logiciq.ui.quiz.DoQuizActivity"/>
-
+<!--        <activity android:name="com.example.logiciq.ui.quiz.AddQuizTestActivity"/>-->
+<!--        <activity android:name="com.example.logiciq.ui.quiz.DoQuizActivity"/>-->
+        <activity android:name=".ui.class.FirestoreTestActivity"/>
+        <activity android:name=".ui.schedule.FakeScheduleActivity"/>
+        <activity android:name=".ui.quiz.QuizDetailActivity" />
 
     </application>
 </manifest>
