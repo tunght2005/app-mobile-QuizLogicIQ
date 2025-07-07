@@ -1,9 +1,37 @@
-/build
+# ========== Android build files ==========
+/build/
+/app/build/
+/.gradle/
+local.properties
 
+# ========== Firebase secrets ==========
 app/google-services.json
 app/serviceAccountKey.json
+**/serviceAccountKey.json
+**/*.keystore
+**/keystore.properties
 
-
+# ========== IDE settings (Android Studio / IntelliJ) ==========
 .idea/
+*.iml
 
+# Nếu bạn muốn ignore riêng file (có thể bỏ nếu đã có .idea/ ở trên)
 .idea/deploymentTargetSelector.xml
+
+# ========== OS-specific files ==========
+.DS_Store
+Thumbs.db
+
+# ========== Log and temporary files ==========
+*.log
+*.tmp
+
+# ========== Test reports and outputs ==========
+/test-results/
+/test-output/
+
+# ========== Compose preview artifacts ==========
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
