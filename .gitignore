@@ -1,16 +1,31 @@
+# Android build files
+.gradle/
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-/serviceAccountKey.json
-.externalNativeBuild
-.cxx
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Studio settings (safe to ignore)
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Local properties (should not be shared)
 local.properties
+
+# macOS system files
+.DS_Store
+
+# Firebase sensitive keys
+app/google-services.json
+app/serviceAccountKey.json
+
+# Misc
+*.log
+*.keystore
+*.jks
