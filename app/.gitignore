@@ -5,3 +5,5 @@ app/serviceAccountKey.json
 
 
 .idea/
+
+.idea/deploymentTargetSelector.xml
