@@ -44,24 +44,42 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.example.logiciq.navigation.Routes
 import com.example.logiciq.view.components.AddOptionsBottomSheet
 import java.text.Normalizer
 import java.util.regex.Pattern
 import androidx.compose.ui.text.input.ImeAction
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.logiciq.data.model.ClassItem
+import com.example.logiciq.view.components.BottomNavigationBar
+import com.example.logiciq.view.components.CalendarRow
+import com.example.logiciq.view.components.ClassSection
 import com.example.logiciq.view.components.ResultOverlay
 import com.example.logiciq.view.components.SearchErrorDialog
 import com.example.logiciq.view.components.CreateReminderDialog
+import com.example.logiciq.view.components.ExamSection
+import com.example.logiciq.view.components.ReminderSection
+import com.example.logiciq.view.components.TopBar
+import com.example.logiciq.viewmodel.LibraryViewModel
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val viewModel: LibraryViewModel = viewModel()
+    val classList by viewModel.classList.collectAsState(initial = emptyList())
+
     var showAddSheet by remember { mutableStateOf(false) }
     var search by rememberSaveable { mutableStateOf("") }
     var results by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
     var showResult by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadClasses()
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -95,8 +113,7 @@ fun HomeScreen(navController: NavController) {
             }
             item { CalendarRow() }
             item { ReminderSection() }
-            item { SubjectSection(navController) }
-            item { ClassSection(navController) }
+            item { ClassSection(navController = navController, classList = classList) }
             item { ExamSection(navController) }
         }
 
@@ -126,10 +143,6 @@ fun HomeScreen(navController: NavController) {
         // Modal Bottom Sheet
         if (showAddSheet) {
             AddOptionsBottomSheet(
-                onCreateSubject = {
-                    navController.navigate(Routes.NEWSUBJECT)
-                    showAddSheet = false
-                },
                 onCreateClass = {
                     navController.navigate(Routes.NEWCLASS)
                     showAddSheet = false
@@ -173,452 +186,3 @@ val mockData = listOf(
     SearchResult("Bài thi", "Name bài thi", "3 câu hỏi", "name user")
 )
 
-@Composable
-fun TopBar(
-    search: String,
-    onSearchChange: (String) -> Unit,
-    onSearchSubmit: () -> Unit,
-    onClear: () -> Unit,
-    onShowError: () -> Unit
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, end = 2.dp, top = 40.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        TextField(
-            value = search,
-            onValueChange = onSearchChange,
-            placeholder = { Text("Search", color = Color.Gray) },
-            singleLine = true,
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .width(270.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    keyboardController?.hide()
-                    if (search.isBlank()) {
-                        onShowError()
-                    } else {
-                        onSearchSubmit()
-                    }
-                }
-            ),
-
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon",
-                    tint = Color.Gray,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .padding(start = 3.dp)
-                )
-            },
-            trailingIcon = {
-                if (search.isNotEmpty()) {
-                    Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.clickable { onClear() })
-                }
-            },
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = Color(0xFFF2F2F2),
-                unfocusedContainerColor = Color(0xFFF2F2F2),
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray
-            )
-        )
-        Icon(
-            painter = painterResource(id = R.drawable.logic_iq),
-            contentDescription = null,
-            modifier = Modifier.size(120.dp),
-            tint = Color.Unspecified
-        )
-    }
-}
-
-@Composable
-fun CalendarRow() {
-    val currentDate = remember { LocalDate.now() }
-    val startOfWeek = remember { currentDate.with(DayOfWeek.MONDAY) }
-    val days = remember(currentDate) {
-        (0..6).map { offset -> startOfWeek.plusDays(offset.toLong()) }
-    }
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text("Lịch Hiện Hành", fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(5.dp))
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            itemsIndexed(days) { _, date ->
-                val isSelected = date == currentDate
-                val dayNumber = date.dayOfMonth.toString()
-
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 6.dp, vertical = 8.dp)
-                        .width(48.dp)
-                        .height(88.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(if (isSelected) Color(0xFFFFE6E6) else Color.Transparent),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = dayNumber,
-                        color = if (isSelected) Color(0xFFEB3B5A) else Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    )
-                    Text(
-                        text = when (date.dayOfWeek.value) {
-                            1 -> "Th 2"
-                            2 -> "Th 3"
-                            3 -> "Th 4"
-                            4 -> "Th 5"
-                            5 -> "Th 6"
-                            6 -> "Th 7"
-                            7 -> "CN"
-                            else -> ""
-                        },
-                        color = if (isSelected) Color(0xFFEB3B5A) else Color(0xFF4A90E2),
-                        fontSize = 14.sp
-                    )
-                    if (isSelected) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(Color(0xFFEB3B5A), shape = CircleShape)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ReminderSection() {
-    //Xử lí viewModel để lấy api cho lịch
-    var showDialog by remember { mutableStateOf(false) }
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text("Lời Nhắc Nhở", fontWeight = FontWeight.Bold)
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            items(4) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF8572FF)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .height(75.dp)
-                        .width(330.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(60.dp)
-                                .background(color = Color(0xFFBAB0F9), shape = RoundedCornerShape(16.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(24.dp))
-                        Column {
-                            Text("DEMO GHI CHÚ LỊCH", fontWeight = FontWeight.Bold, color = Color.White)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "12.00 - 16.00",
-                                    color = Color.White
-                                )
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-        // Add form xữ lí tạo lịch với modal "CHỈ" lịch trong ngày (update lịch tự lựa chọn)
-        Button(
-            onClick = { showDialog = true },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDE496E)),
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier.padding(top = 8.dp, start = 24.dp)
-        ) {
-            Text("Tạo Lịch", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-        }
-
-        if (showDialog) {
-            CreateReminderDialog(
-                onDismiss = { showDialog = false },
-                onSave = { title, start, end ->
-                    // TODO: Lưu lịch vào ViewModel hoặc danh sách
-                    Log.d("Reminder", "$title: $start - $end")
-                }
-            )
-        }
-
-    }
-}
-
-@Composable
-fun SubjectSection(navController: NavController ) {
-    //view ở đây
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text("Học Phần", fontWeight = FontWeight.Bold)
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            items(3) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .width(330.dp)
-                        .clickable { navController.navigate(Routes.SUBJECT)}
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Name học phần", fontWeight = FontWeight.Bold, color = Color.White)
-                            Text("3 thuật ngữ", color = Color.White)
-                            Row( modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp)
-                            ) {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                                Text(
-                                    "name user",
-                                    color = Color.White,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ClassSection(navController: NavController) {
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text("Lớp Học", fontWeight = FontWeight.Bold)
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            items(3) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .width(330.dp)
-                        .clickable { navController.navigate(Routes.CLASS)}
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Name Lớp", fontWeight = FontWeight.Bold, color = Color.White)
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(color = Color(0xFFBDD0FF))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Menu, contentDescription = null, tint = Color.Black)
-                                        Spacer(Modifier.width(4.dp))
-                                        Text("1 học phần", color = Color.Black, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-
-                                Spacer(Modifier.width(25.dp))
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(color = Color(0xFFBDD0FF))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.Black)
-                                        Spacer(Modifier.width(4.dp))
-                                        Text("1 members", color = Color.Black, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ExamSection(navController: NavController) {
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text("Bài Thi", fontWeight = FontWeight.Bold)
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            items(3) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .width(330.dp)
-                        .clickable { navController.navigate(Routes.TEST)}
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Name bài thi", fontWeight = FontWeight.Bold, color = Color.White)
-                            Text("3 câu hỏi", color = Color.White)
-                            Row( modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp)
-                            ) {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                                Text(
-                                    "name user",
-                                    color = Color.White,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier, onAddClick: () -> Unit) {
-    NavigationBar(
-        modifier = modifier,
-        containerColor = Color(0xFF3F6ABA),
-        tonalElevation = 8.dp
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(Routes.HOME) },
-            icon = {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(Color(0xFF6FA8DC), shape = CircleShape)
-                        .padding(6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White)
-                }
-            }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = onAddClick,
-            icon = {
-                Icon(
-                    Icons.Default.AddCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.White
-                )
-            }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(Routes.LIBRARY)},
-            icon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(Routes.PROFILE) },
-//            icon = {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.logic_iq),
-//                    contentDescription = "Icon minh họa cho tài khoản",
-//                    modifier = Modifier.size(24.dp)
-//                )
-//            },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(36.dp), tint = Color.White) }
-        )
-    }
-}

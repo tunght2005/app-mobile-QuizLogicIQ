@@ -9,26 +9,31 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
+import com.example.logiciq.data.model.Quiz
 import com.example.logiciq.navigation.Routes
 
 @Composable
-fun TestTabContent(navController: NavController) {
+fun TestTabContent(
+    navController: NavController,
+    quiz: Quiz
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(10) {
+        item {
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
-                    .clickable { navController.navigate(Routes.TEST)}
+                    .clickable {
+                        navController.navigate(Routes.TEST)
+                    }
             ) {
                 Box(
                     modifier = Modifier
@@ -39,15 +44,23 @@ fun TestTabContent(navController: NavController) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Name bài thi", fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("3 câu hỏi", color = Color.White)
-                        Row( modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp)
+                        Text(
+                            text = quiz.title.ifEmpty { "Bài kiểm tra chưa có tiêu đề" },
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "${quiz.questions.size} câu hỏi",
+                            color = Color.White
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
                         ) {
                             Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
                             Text(
-                                "name user",
+                                text = quiz.createByName,
                                 color = Color.White,
                                 modifier = Modifier.padding(start = 4.dp)
                             )

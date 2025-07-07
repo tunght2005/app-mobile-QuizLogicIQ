@@ -1,33 +1,57 @@
 package com.example.logiciq.navigation
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.logiciq.view.screens.*
+import com.example.logiciq.viewmodel.ClassViewModel
+import com.example.logiciq.data.model.Quiz
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 
 fun NavGraphBuilder.mainGraph(navController: NavHostController) {
-    composable(Routes.HOME) { HomeScreen(navController) }
-    composable(Routes.LIBRARY) { LibraryScreen(navController) }
-    composable(Routes.CLASS) { ClassScreen(navController) }
+    composable(Routes.HOME) {
+        HomeScreen(navController)
+    }
+
+    composable(Routes.LIBRARY) {
+        LibraryScreen(navController)
+    }
+
+    composable("${Routes.CLASS}/{classId}") { backStackEntry ->
+        val classId = backStackEntry.arguments?.getString("classId") ?: ""
+        ClassScreen(navController = navController, classId = classId)
+    }
 
     composable(Routes.NEWCLASS) {
+        val viewModel: ClassViewModel = viewModel()
+        val user = FirebaseAuth.getInstance().currentUser
+
         NewClassScreen(
             navController = navController,
             onBack = { navController.popBackStack() },
-            onSave = {
-                // logic lưu lớp học nếu có
-                navController.popBackStack()
-            }
-        )
-    }
+            onSave = { name, description ->
+                if (user != null) {
+                    val quiz = Quiz(
+                        title = "Bài kiểm tra đầu tiên",
+                        questions = emptyList(),
+                        maxDurationSeconds = 600,
+                        createBy = user.uid,
+                        createByName = user.displayName ?: user.email ?: "Không tên",
+                        createdAt = Timestamp.now()
+                    )
 
-    composable(Routes.NEWSUBJECT) {
-        NewSubjectScreen(
-            navController = navController,
-            onBack = { navController.popBackStack() },
-            onSave = {
-                // TODO: thực hiện lưu học phần ở đây nếu có logic
-                navController.popBackStack()
+                    viewModel.createClass(name, description, quiz) { result ->
+                        if (result.isSuccess) {
+                            navController.navigate(Routes.LIBRARY) {
+                                popUpTo(Routes.HOME) { inclusive = false }
+                            }
+                        } else {
+                            println("❌ Lỗi tạo lớp: ${result.exceptionOrNull()?.message}")
+                        }
+                    }
+                }
             }
         )
     }
@@ -37,29 +61,37 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
             navController = navController,
             onBack = { navController.popBackStack() },
             onSave = {
-                // TODO: thực hiện lưu đề thi ở đây nếu có logic
-                navController.popBackStack()
+                navController.navigate(Routes.LIBRARY) {
+                    popUpTo(Routes.HOME) { inclusive = false }
+                }
             }
         )
     }
 
-    composable(Routes.LEARNING) { LearningScreen(navController) }
-    composable(Routes.SUBJECT) { SubjectScreen(navController) }
-    composable(Routes.TEST) { TestScreen(navController) }
-    composable(Routes.EXAM) { ExamScreen(navController) }
-    composable(Routes.PROFILE) { ProfileScreen(navController) }
-    composable(Routes.HISTORY) { HistoryScreen(navController) }
+    composable(Routes.TEST) {
+        TestScreen(navController)
+    }
+
+    composable(Routes.EXAM) {
+        ExamScreen(navController)
+    }
+
+    composable(Routes.PROFILE) {
+        ProfileScreen(navController)
+    }
+
+    composable(Routes.HISTORY) {
+        HistoryScreen(navController)
+    }
 
     composable(Routes.SETTING) {
         SettingsScreen(
             navController = navController,
             onLogoutClick = {
                 navController.navigate("auth") {
-                    popUpTo(0) { inclusive = true } // Xóa toàn bộ backstack
+                    popUpTo(0) { inclusive = true }
                 }
             }
         )
     }
-
-    // composable(Routes.CHANGE_PASSWORD) { ChangePasswordScreen(navController) }
 }

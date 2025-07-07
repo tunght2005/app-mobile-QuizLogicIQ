@@ -50,7 +50,6 @@ fun ResultCard(result: SearchResult, navController: NavController) {
                     .clickable {
                         when (result.type) {
                             "Lớp Học" -> navController.navigate(Routes.CLASS)
-                            "Học Phần" -> navController.navigate(Routes.SUBJECT)
                             else -> navController.navigate(Routes.TEST)
                         }
                     }
