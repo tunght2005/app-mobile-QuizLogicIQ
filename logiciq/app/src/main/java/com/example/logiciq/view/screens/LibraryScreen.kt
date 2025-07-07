@@ -7,18 +7,34 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.logiciq.view.components.ClassTabContent
-import com.example.logiciq.view.components.SubjectTabContent
+import com.example.logiciq.view.components.TestTabContent
+import com.example.logiciq.viewmodel.LibraryViewModel
+import com.example.logiciq.viewmodel.TestViewModel
 
 @Composable
 fun LibraryScreen(navController: NavController) {
+    val classViewModel: LibraryViewModel = viewModel()
+    val testViewModel: TestViewModel = viewModel()
+
+    val classList by classViewModel.classList.collectAsState(initial = emptyList())
+    val testList by testViewModel.testList.collectAsState(initial = emptyList())
+
+    LaunchedEffect(Unit) {
+        classViewModel.loadClasses()
+        testViewModel.loadTests() // 🆕 Tải danh sách bài thi từ Firestore
+    }
+
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("HỌC PHẦN", "LỚP HỌC")
+    val tabs = listOf("BÀI THI", "LỚP HỌC")
 
     Column(
         modifier = Modifier
@@ -51,7 +67,7 @@ fun LibraryScreen(navController: NavController) {
             )
         }
 
-        // Tabs chuyển giữa 2 class
+        // Tabs
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = Color.Transparent,
@@ -81,7 +97,6 @@ fun LibraryScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tab content library giữa học phần và lớp học ở component
         Column(
             modifier = Modifier
                 .padding(horizontal = 5.dp, vertical = 40.dp)
@@ -89,9 +104,26 @@ fun LibraryScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (selectedTab == 0) {
-                SubjectTabContent(navController)
+                if (testList.isNotEmpty()) {
+                    // 🆕 Hiển thị danh sách bài thi
+                    testList.forEach { quiz ->
+                        TestTabContent(
+                            navController = navController,
+                            quiz = quiz
+                        )
+                    }
+                } else {
+                    Text(
+                        text = "Không có bài thi nào.",
+                        color = Color.White,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
             } else {
-                ClassTabContent(navController)
+                ClassTabContent(
+                    navController = navController,
+                    classList = classList
+                )
             }
         }
     }

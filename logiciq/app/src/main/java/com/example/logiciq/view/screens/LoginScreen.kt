@@ -41,6 +41,7 @@ import com.example.logiciq.navigation.Routes
 import com.example.logiciq.view.components.LoadingOverlay
 import com.example.logiciq.viewmodel.AuthResult
 import com.example.logiciq.viewmodel.AuthViewModel
+// ... (phần import giữ nguyên)
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -54,7 +55,6 @@ fun LoginScreen(
     val activity = context as Activity
     val authState by viewModel.authState.collectAsState()
 
-    // Google Sign-In
     val gso = remember {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(R.string.default_web_client_id))
@@ -84,7 +84,6 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
 
-    // Xử lý AuthResult
     when (authState) {
         is AuthResult.Success -> {
             LaunchedEffect(Unit) {
@@ -139,12 +138,7 @@ fun LoginScreen(
                 onValueChange = { email = it },
                 placeholder = { Text("Nhập email", color = Color.White) },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(35.dp)
-                    )
+                    Icon(Icons.Default.Person, null, tint = Color.White, modifier = Modifier.size(35.dp))
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Transparent,
@@ -154,11 +148,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xCCCCCCCC),
-                                Color(0xFF8DAAEE),
-                                Color(0xFF8DAAEE)
-                            ),
+                            colors = listOf(Color(0xCCCCCCCC), Color(0xFF8DAAEE), Color(0xFF8DAAEE)),
                             start = Offset(0f, 0f),
                             end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                         ),
@@ -174,12 +164,7 @@ fun LoginScreen(
                 onValueChange = { password = it },
                 placeholder = { Text("Mật khẩu", color = Color.White) },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(35.dp)
-                    )
+                    Icon(Icons.Default.Lock, null, tint = Color.White, modifier = Modifier.size(35.dp))
                 },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
@@ -201,11 +186,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xCCCCCCCC),
-                                Color(0xFF8DAAEE),
-                                Color(0xFF8DAAEE)
-                            ),
+                            colors = listOf(Color(0xCCCCCCCC), Color(0xFF8DAAEE), Color(0xFF8DAAEE)),
                             start = Offset(0f, 0f),
                             end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                         ),
@@ -265,8 +246,11 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    val signInIntent = googleSignInClient.signInIntent
-                    launcher.launch(signInIntent)
+                    // ✅ Luôn hiện hộp thoại chọn tài khoản Google
+                    googleSignInClient.signOut().addOnCompleteListener {
+                        val signInIntent = googleSignInClient.signInIntent
+                        launcher.launch(signInIntent)
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
@@ -281,9 +265,10 @@ fun LoginScreen(
             }
         }
 
-        // 👉 Loading overlay khi đang xử lý
         if (authState is AuthResult.Loading) {
             LoadingOverlay()
         }
     }
 }
+
+

@@ -4,12 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logiciq.data.model.User
 import com.example.logiciq.data.repository.AuthRepository
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 sealed class AuthResult {
     object Loading : AuthResult()
@@ -67,6 +64,17 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _authState.value = AuthResult.Loading
+            val result = repository.firebaseAuthWithGoogle(idToken)
+            _authState.value = result.fold(
+                onSuccess = { AuthResult.Success(it) },
+                onFailure = { AuthResult.Error(it.message ?: "Đăng nhập Google thất bại") }
+            )
+        }
+    }
+
     fun resetAuthState() {
         _authState.value = AuthResult.Idle
     }
@@ -74,27 +82,4 @@ class AuthViewModel : ViewModel() {
     fun resetResetPasswordState() {
         _resetPasswordState.value = ResetPasswordResult.Idle
     }
-    fun signInWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        viewModelScope.launch {
-            try {
-                val result = FirebaseAuth.getInstance().signInWithCredential(credential).await()
-                val firebaseUser = result.user
-                if (firebaseUser != null) {
-                    val user = User(
-                        uid = firebaseUser.uid,
-                        name = firebaseUser.displayName ?: "",
-                        email = firebaseUser.email ?: "",
-                        photoUrl = firebaseUser.photoUrl?.toString()
-                    )
-                    _authState.value = AuthResult.Success(user)
-                } else {
-                    _authState.value = AuthResult.Error("Người dùng không tồn tại")
-                }
-            } catch (e: Exception) {
-                _authState.value = AuthResult.Error(e.message ?: "Đăng nhập Google thất bại")
-            }
-        }
-    }
-
 }

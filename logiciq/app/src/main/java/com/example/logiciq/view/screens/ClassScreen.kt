@@ -13,20 +13,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import com.example.logiciq.view.components.MemberTabContent
-import com.example.logiciq.view.components.SubjectTabContent
 import com.example.logiciq.view.components.TestTabContent
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.logiciq.viewmodel.ClassViewModel
+import com.example.logiciq.data.model.ClassItem
+import androidx.compose.runtime.collectAsState
 
 @Composable
-fun ClassScreen(navController: NavController, className: String = "NAME LỚP") {
+fun ClassScreen(
+    navController: NavController,
+    classId: String
+) {
+    val viewModel: ClassViewModel = viewModel()
+    val classState by viewModel.classState.collectAsState()
+
+    LaunchedEffect(classId) {
+        viewModel.loadClass(classId)
+    }
+
+    if (classState == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
+        }
+        return
+    }
+
+    val classItem = classState!!
+
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("HỌC PHẦN","BÀI THI" ,"THÀNH VIÊN")
+    val tabs = listOf("BÀI THI", "THÀNH VIÊN")
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1E293B))
     ) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -43,8 +67,9 @@ fun ClassScreen(navController: NavController, className: String = "NAME LỚP") 
                     modifier = Modifier.size(40.dp)
                 )
             }
+
             Text(
-                text = className,
+                text = classItem.name,
                 modifier = Modifier.align(Alignment.Center),
                 color = Color.White,
                 fontSize = 26.sp,
@@ -52,7 +77,6 @@ fun ClassScreen(navController: NavController, className: String = "NAME LỚP") 
             )
         }
 
-        // Tabs
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = Color.Transparent,
@@ -82,7 +106,6 @@ fun ClassScreen(navController: NavController, className: String = "NAME LỚP") 
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tab Content
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
@@ -90,9 +113,8 @@ fun ClassScreen(navController: NavController, className: String = "NAME LỚP") 
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             when (selectedTab) {
-                0 -> SubjectTabContent(navController)
-                1 -> TestTabContent(navController)
-                2 -> MemberTabContent()
+                0 -> TestTabContent(navController = navController,quiz = classItem.quiz)
+                1 -> MemberTabContent(members = classItem.members)
             }
         }
     }

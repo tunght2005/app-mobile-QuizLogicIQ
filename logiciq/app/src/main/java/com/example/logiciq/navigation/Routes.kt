@@ -2,8 +2,8 @@ package com.example.logiciq.navigation
 
 object Routes {
     // Root graphs
-    const val AUTH = "auth"          // 👈 Thêm dòng này
-    const val MAIN = "main"          // (Tuỳ chọn, nếu bạn tách nav graph thành authGraph & mainGraph)
+    const val AUTH = "auth"
+    const val MAIN = "main"
 
     // Auth screens
     const val WELCOME = "welcome_screen"
@@ -18,8 +18,8 @@ object Routes {
     const val CLASS = "class_screen"
     const val NEWCLASS = "create_class"
     const val NEWTEST = "create_test"
-    const val NEWSUBJECT = "create_subject"
-    const val SUBJECT = "suject_screen"
+//    const val NEWSUBJECT = "create_subject"
+//    const val SUBJECT = "suject_screen"
     const val TEST = "test_screen"
     const val EXAM = "exam_screen"
     const val LEARNING = "learning_screen"

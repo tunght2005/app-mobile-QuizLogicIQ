@@ -26,7 +26,7 @@ import com.example.logiciq.R
 import kotlinx.coroutines.delay
 
 // Data model for question
-// Tái sử dụng ở Learning rồi: data class Question(val term: String, val options: List<String>, val correctAnswer: String)
+data class Question(val term: String, val options: List<String>, val correctAnswer: String)
 
 data class UserScore(val name: String, val correct: Int, val wrong: Int)
 
