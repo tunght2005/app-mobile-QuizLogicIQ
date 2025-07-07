@@ -1,4 +1,7 @@
 /build
 
-google-services.json
-serviceAccountKey.json
+app/google-services.json
+app/serviceAccountKey.json
+
+
+.idea/
