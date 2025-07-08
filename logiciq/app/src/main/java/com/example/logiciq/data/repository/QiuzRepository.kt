@@ -5,7 +5,6 @@ import com.example.logiciq.data.model.Quiz
 import com.example.logiciq.data.model.QuizResult
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.UUID
 
 class QuizRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -13,7 +12,7 @@ class QuizRepository(
     private val quizCollection = db.collection("quizzes")
     private val resultCollection = db.collection("quiz_results")
 
-    // Thêm Quiz mới vào Firestore
+    // ✅ Thêm Quiz mới vào Firestore
     fun saveQuiz(quiz: Quiz, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
         val data = mapOf(
             "id" to quiz.id,
@@ -21,6 +20,8 @@ class QuizRepository(
             "maxDurationSeconds" to quiz.maxDurationSeconds,
             "createdAt" to quiz.createdAt,
             "createBy" to quiz.createBy,
+            "createByName" to quiz.createByName,
+            "classId" to (quiz.classId ?: ""),
             "questions" to quiz.questions.map { q ->
                 when (q) {
                     is Question.Type4 -> mapOf(
@@ -38,13 +39,14 @@ class QuizRepository(
                 }
             }
         )
+
         quizCollection.document(quiz.id)
             .set(data)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // Lưu kết quả làm bài của người dùng
+    // ✅ Lưu kết quả làm bài
     fun saveQuizResult(
         result: QuizResult,
         onSuccess: () -> Unit,
@@ -55,7 +57,7 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // Lấy tất cả Quiz (ví dụ cho giao diện danh sách bài quiz)
+    // ✅ Lấy tất cả quiz (toàn bộ)
     fun getAllQuizzes(
         onSuccess: (List<Quiz>) -> Unit,
         onError: (Exception) -> Unit
@@ -70,7 +72,7 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // Lấy một Quiz theo ID
+    // ✅ Lấy quiz theo ID
     fun getQuizById(
         quizId: String,
         onSuccess: (Quiz) -> Unit,
@@ -88,7 +90,7 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // Extension function hỗ trợ mapping document thành Quiz
+    // ✅ Extension hỗ trợ chuyển map thành Question
     private fun Map<String, Any>.toQuestion(): Question? {
         val type = this["type"] as? String ?: return null
         val id = this["id"] as? String ?: return null
@@ -113,11 +115,14 @@ class QuizRepository(
         }
     }
 
+    // ✅ Extension chuyển DocumentSnapshot thành Quiz
     private fun com.google.firebase.firestore.DocumentSnapshot.toQuizOrNull(): Quiz? {
         val id = getString("id") ?: return null
         val title = getString("title") ?: return null
         val maxDurationSeconds = getLong("maxDurationSeconds")?.toInt() ?: return null
         val createBy = getString("createBy") ?: ""
+        val createByName = getString("createByName") ?: ""
+        val classId = getString("classId")
         val createdAt = getTimestamp("createdAt") ?: Timestamp.now()
         val questionsData = get("questions") as? List<Map<String, Any>> ?: return null
 
@@ -129,6 +134,8 @@ class QuizRepository(
             questions = questions,
             maxDurationSeconds = maxDurationSeconds,
             createBy = createBy,
+            createByName = createByName,
+            classId = classId,
             createdAt = createdAt
         )
     }

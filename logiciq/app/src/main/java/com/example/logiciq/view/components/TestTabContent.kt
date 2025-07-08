@@ -1,17 +1,22 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.logiciq.view.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.logiciq.data.model.Quiz
 import com.example.logiciq.navigation.Routes
@@ -19,12 +24,12 @@ import com.example.logiciq.navigation.Routes
 @Composable
 fun TestTabContent(
     navController: NavController,
-    quiz: Quiz
+    testList: List<Quiz>
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        item {
+        items(testList) { quiz ->
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
                 shape = RoundedCornerShape(12.dp),
@@ -32,7 +37,7 @@ fun TestTabContent(
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate(Routes.TEST)
+                        navController.navigate("test/${quiz.id}") // hoặc Routes.TEST nếu có
                     }
             ) {
                 Box(
@@ -41,9 +46,7 @@ fun TestTabContent(
                         .padding(5.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = quiz.title.ifEmpty { "Bài kiểm tra chưa có tiêu đề" },
                             fontWeight = FontWeight.Bold,
@@ -71,3 +74,4 @@ fun TestTabContent(
         }
     }
 }
+

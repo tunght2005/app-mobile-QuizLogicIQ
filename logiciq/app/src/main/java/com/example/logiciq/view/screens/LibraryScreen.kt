@@ -1,9 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.logiciq.view.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -18,19 +20,17 @@ import androidx.navigation.NavController
 import com.example.logiciq.view.components.ClassTabContent
 import com.example.logiciq.view.components.TestTabContent
 import com.example.logiciq.viewmodel.LibraryViewModel
-import com.example.logiciq.viewmodel.TestViewModel
 
 @Composable
 fun LibraryScreen(navController: NavController) {
-    val classViewModel: LibraryViewModel = viewModel()
-    val testViewModel: TestViewModel = viewModel()
+    val viewModel: LibraryViewModel = viewModel()
 
-    val classList by classViewModel.classList.collectAsState(initial = emptyList())
-    val testList by testViewModel.testList.collectAsState(initial = emptyList())
+    val classList by viewModel.classList.collectAsState()
+    val testList by viewModel.testList.collectAsState()
 
     LaunchedEffect(Unit) {
-        classViewModel.loadClasses()
-        testViewModel.loadTests() // 🆕 Tải danh sách bài thi từ Firestore
+        viewModel.loadClasses()
+        viewModel.loadTests()
     }
 
     var selectedTab by remember { mutableStateOf(0) }
@@ -52,7 +52,7 @@ fun LibraryScreen(navController: NavController) {
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.White,
                     modifier = Modifier.size(40.dp)
@@ -73,7 +73,7 @@ fun LibraryScreen(navController: NavController) {
             containerColor = Color.Transparent,
             contentColor = Color.White,
             indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
+                TabRowDefaults.SecondaryIndicator(
                     Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
                     color = Color.Cyan,
                     height = 3.dp
@@ -104,21 +104,10 @@ fun LibraryScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (selectedTab == 0) {
-                if (testList.isNotEmpty()) {
-                    // 🆕 Hiển thị danh sách bài thi
-                    testList.forEach { quiz ->
-                        TestTabContent(
-                            navController = navController,
-                            quiz = quiz
-                        )
-                    }
-                } else {
-                    Text(
-                        text = "Không có bài thi nào.",
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
+                TestTabContent(
+                    navController = navController,
+                    testList = testList
+                )
             } else {
                 ClassTabContent(
                     navController = navController,

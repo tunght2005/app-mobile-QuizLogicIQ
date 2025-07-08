@@ -20,13 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.logiciq.data.model.Question
 import com.example.logiciq.data.model.Quiz
+import com.example.logiciq.viewmodel.QuizViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 @Composable
 fun NewTestScreen(
@@ -34,10 +34,11 @@ fun NewTestScreen(
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
+    val viewModel: QuizViewModel = viewModel()
     var title by remember { mutableStateOf("") }
     var questionList by remember { mutableStateOf(listOf(QuestionItem("", List(4) { "" }))) }
 
-    fun saveTestToFirestore() {
+    fun saveTest() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             Log.e("NewTestScreen", "⚠️ Người dùng chưa đăng nhập.")
@@ -51,7 +52,7 @@ fun NewTestScreen(
                 optionB = q.answers.getOrElse(1) { "" },
                 optionC = q.answers.getOrElse(2) { "" },
                 optionD = q.answers.getOrElse(3) { "" },
-                correctOption = 'A' // Bạn có thể bổ sung giao diện chọn đáp án đúng sau
+                correctOption = 'A' // Có thể cho phép chọn trong UI sau
             )
         }
 
@@ -64,15 +65,13 @@ fun NewTestScreen(
             createdAt = Timestamp.now()
         )
 
-        Firebase.firestore.collection("tests")
-            .add(quiz)
-            .addOnSuccessListener {
-                Log.d("NewTestScreen", "✅ Bài thi đã được lưu.")
+        viewModel.createQuiz(quiz) { success, error ->
+            if (success) {
                 onSave()
+            } else {
+                Log.e("NewTestScreen", "❌ Lỗi tạo quiz: $error")
             }
-            .addOnFailureListener {
-                Log.e("NewTestScreen", "❌ Lỗi khi lưu bài thi: ${it.message}")
-            }
+        }
     }
 
     Column(
@@ -86,11 +85,11 @@ fun NewTestScreen(
                 .fillMaxWidth()
                 .padding(top = 58.dp, start = 30.dp, end = 30.dp, bottom = 30.dp)
         ) {
-            IconButton(onClick = { onBack() }, modifier = Modifier.align(Alignment.CenterStart)) {
+            IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(48.dp))
             }
             Text("Tạo bài thi", modifier = Modifier.align(Alignment.Center), color = Color.White, fontSize = 25.sp)
-            IconButton(onClick = { saveTestToFirestore() }, modifier = Modifier.align(Alignment.CenterEnd)) {
+            IconButton(onClick = { saveTest() }, modifier = Modifier.align(Alignment.CenterEnd)) {
                 Icon(Icons.Default.Check, contentDescription = "Save", tint = Color.White, modifier = Modifier.size(48.dp))
             }
         }
@@ -142,7 +141,9 @@ fun NewTestScreen(
                         ) {
                             Text("Câu hỏi ${index + 1}", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             IconButton(
-                                onClick = { questionList = questionList.filterIndexed { i, _ -> i != index } },
+                                onClick = {
+                                    questionList = questionList.filterIndexed { i, _ -> i != index }
+                                },
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(Icons.Default.Close, contentDescription = "Xoá", tint = Color.White)

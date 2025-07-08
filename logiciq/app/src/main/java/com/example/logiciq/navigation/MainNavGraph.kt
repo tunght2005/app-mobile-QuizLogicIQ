@@ -6,8 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.logiciq.view.screens.*
 import com.example.logiciq.viewmodel.ClassViewModel
-import com.example.logiciq.data.model.Quiz
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 
 fun NavGraphBuilder.mainGraph(navController: NavHostController) {
@@ -33,16 +31,7 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
             onBack = { navController.popBackStack() },
             onSave = { name, description ->
                 if (user != null) {
-                    val quiz = Quiz(
-                        title = "Bài kiểm tra đầu tiên",
-                        questions = emptyList(),
-                        maxDurationSeconds = 600,
-                        createBy = user.uid,
-                        createByName = user.displayName ?: user.email ?: "Không tên",
-                        createdAt = Timestamp.now()
-                    )
-
-                    viewModel.createClass(name, description, quiz) { result ->
+                    viewModel.createClass(name, description) { result ->
                         if (result.isSuccess) {
                             navController.navigate(Routes.LIBRARY) {
                                 popUpTo(Routes.HOME) { inclusive = false }

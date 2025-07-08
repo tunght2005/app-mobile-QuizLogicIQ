@@ -18,15 +18,22 @@ class ClassViewModel(
     private val _classState = MutableStateFlow<ClassItem?>(null)
     val classState: StateFlow<ClassItem?> = _classState.asStateFlow()
 
+    private val _quizList = MutableStateFlow<List<Quiz>>(emptyList())
+    val quizList: StateFlow<List<Quiz>> = _quizList.asStateFlow()
+
+    // ✅ KHÔNG cần truyền quiz nữa
     fun createClass(
         name: String,
         description: String,
-        quiz: Quiz,
         onResult: (Result<String>) -> Unit
     ) {
         viewModelScope.launch {
-            val result = repository.createClass(name, description, quiz)
-            onResult(result)
+            try {
+                val id = repository.createClass(name, description)
+                onResult(Result.success(id))
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
+            }
         }
     }
 
@@ -37,6 +44,17 @@ class ClassViewModel(
                 _classState.value = classItem
             } catch (e: Exception) {
                 Log.e("ClassViewModel", "Lỗi tải lớp học: ${e.message}")
+            }
+        }
+    }
+
+    fun loadQuizzes(classId: String) {
+        viewModelScope.launch {
+            try {
+                val quizzes = repository.getQuizzesByClassId(classId)
+                _quizList.value = quizzes
+            } catch (e: Exception) {
+                Log.e("ClassViewModel", "Lỗi tải bài thi của lớp: ${e.message}")
             }
         }
     }
