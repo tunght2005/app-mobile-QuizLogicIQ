@@ -5,10 +5,12 @@ import java.util.UUID
 
 data class Quiz(
     val id: String = UUID.randomUUID().toString(),
-    val title: String = "",                         // ✅ thêm mặc định
-    val questions: List<Question> = emptyList(),    // ✅ thêm mặc định
-    val maxDurationSeconds: Int = 0,                // ✅ thêm mặc định
+    val classId: String? = null,
+    val title: String = "",
+    val questions: List<Question> = emptyList(),
+    val maxDurationSeconds: Int = 0,
     val createByName: String = "",
     val createBy: String = "",
     val createdAt: Timestamp = Timestamp.now()
 )
+

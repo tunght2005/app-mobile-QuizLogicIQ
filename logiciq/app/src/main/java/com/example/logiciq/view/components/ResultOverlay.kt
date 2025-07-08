@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.logiciq.view.screens.SearchResult
+import com.example.logiciq.data.model.SearchResult
 
 @Composable
 fun ResultOverlay(results: List<SearchResult>, onClose: () -> Unit, navController: NavController) {

@@ -11,12 +11,11 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.logiciq.view.components.MemberTabContent
 import com.example.logiciq.view.components.TestTabContent
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.logiciq.viewmodel.ClassViewModel
-import com.example.logiciq.data.model.ClassItem
 import androidx.compose.runtime.collectAsState
 
 @Composable
@@ -26,9 +25,12 @@ fun ClassScreen(
 ) {
     val viewModel: ClassViewModel = viewModel()
     val classState by viewModel.classState.collectAsState()
+    val quizList by viewModel.quizList.collectAsState()
 
+    // Gọi khi classId thay đổi
     LaunchedEffect(classId) {
         viewModel.loadClass(classId)
+        viewModel.loadQuizzes(classId)
     }
 
     if (classState == null) {
@@ -42,7 +44,6 @@ fun ClassScreen(
     }
 
     val classItem = classState!!
-
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("BÀI THI", "THÀNH VIÊN")
 
@@ -51,6 +52,7 @@ fun ClassScreen(
             .fillMaxSize()
             .background(Color(0xFF1E293B))
     ) {
+        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,6 +79,7 @@ fun ClassScreen(
             )
         }
 
+        // Tabs
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = Color.Transparent,
@@ -113,7 +116,17 @@ fun ClassScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             when (selectedTab) {
-                0 -> TestTabContent(navController = navController,quiz = classItem.quiz)
+                0 -> {
+                    if (quizList.isNotEmpty()) {
+                        TestTabContent(navController = navController, testList = quizList)
+                    } else {
+                        Text(
+                            text = "Chưa có bài thi nào.",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
                 1 -> MemberTabContent(members = classItem.members)
             }
         }

@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.logiciq.navigation.Routes
-import com.example.logiciq.view.screens.SearchResult
+import com.example.logiciq.data.model.SearchResult
 
 @Composable
 fun ResultCard(result: SearchResult, navController: NavController) {
