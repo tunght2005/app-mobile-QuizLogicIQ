@@ -20,17 +20,21 @@ import androidx.navigation.NavController
 import com.example.logiciq.view.components.ClassTabContent
 import com.example.logiciq.view.components.TestTabContent
 import com.example.logiciq.viewmodel.LibraryViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LibraryScreen(navController: NavController) {
     val viewModel: LibraryViewModel = viewModel()
-
     val classList by viewModel.classList.collectAsState()
     val testList by viewModel.testList.collectAsState()
 
-    LaunchedEffect(Unit) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    LaunchedEffect(userId) {
         viewModel.loadClasses()
-        viewModel.loadTests()
+        if (userId != null) {
+            viewModel.loadTests(userId)  // ✅ Chỉ gọi 1 lần và đúng logic
+        }
     }
 
     var selectedTab by remember { mutableStateOf(0) }

@@ -18,11 +18,10 @@ object Routes {
     const val CLASS = "class_screen"
     const val NEWCLASS = "create_class"
     const val NEWTEST = "create_test"
-//    const val NEWSUBJECT = "create_subject"
-//    const val SUBJECT = "suject_screen"
     const val TEST = "test_screen"
     const val EXAM = "exam_screen"
     const val LEARNING = "learning_screen"
+    const val SHARE_TO_CLASS = "share_to_class_screen" // ✅ Thêm dòng này
 
     // Profile / Setting
     const val PROFILE = "profile_screen"

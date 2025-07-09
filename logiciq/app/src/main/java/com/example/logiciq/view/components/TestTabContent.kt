@@ -63,7 +63,7 @@ fun TestTabContent(
                         ) {
                             Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
                             Text(
-                                text = quiz.createByName,
+                                text = quiz.createdByName,
                                 color = Color.White,
                                 modifier = Modifier.padding(start = 4.dp)
                             )

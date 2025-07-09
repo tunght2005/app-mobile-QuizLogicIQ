@@ -83,4 +83,11 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
             }
         )
     }
+
+    // ✅ Thêm dòng này để mở màn hình chia sẻ bài thi vào lớp
+    composable("${Routes.SHARE_TO_CLASS}/{quizId}") { backStackEntry ->
+        val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
+        ShareToClassScreen(navController, quizId)
+    }
 }
+

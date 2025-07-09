@@ -38,21 +38,31 @@ fun NewTestScreen(
     var title by remember { mutableStateOf("") }
     var questionList by remember { mutableStateOf(listOf(QuestionItem("", List(4) { "" }))) }
 
+    val user = FirebaseAuth.getInstance().currentUser
+
+    // Lấy classIds của user hiện tại
+    LaunchedEffect(Unit) {
+        user?.uid?.let { uid ->
+            viewModel.loadUserClassIds(uid)
+        }
+    }
+
+    val classIds by viewModel.userClassIds.collectAsState()
+
     fun saveTest() {
-        val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             Log.e("NewTestScreen", "⚠️ Người dùng chưa đăng nhập.")
             return
         }
 
-        val questions = questionList.mapIndexed { _, q ->
+        val questions = questionList.map { q ->
             Question.Type4(
                 text = q.question,
                 optionA = q.answers.getOrElse(0) { "" },
                 optionB = q.answers.getOrElse(1) { "" },
                 optionC = q.answers.getOrElse(2) { "" },
                 optionD = q.answers.getOrElse(3) { "" },
-                correctOption = 'A' // Có thể cho phép chọn trong UI sau
+                correctOption = 'A' // Có thể cập nhật sau trong UI
             )
         }
 
@@ -60,21 +70,29 @@ fun NewTestScreen(
             title = title,
             questions = questions,
             maxDurationSeconds = 600,
-            createBy = user.uid,
-            createByName = user.displayName ?: user.email ?: "Không tên",
-            createdAt = Timestamp.now()
+            createdBy = user.uid,
+            createdByName = user.displayName ?: user.email ?: "Không tên",
+            createdAt = Timestamp.now(),
+            classIds = classIds // ✅ Thêm classIds ở đây
         )
 
-        viewModel.createQuiz(quiz) { success, error ->
-            if (success) {
-                onSave()
-            } else {
-                Log.e("NewTestScreen", "❌ Lỗi tạo quiz: $error")
+        viewModel.createQuiz(
+            userId = user.uid,
+            userName = user.displayName ?: user.email ?: "Không tên",
+            title = title,
+            questions = questions,
+            maxDurationSeconds = 600,
+            onResult = { success, error ->
+                if (success) {
+                    onSave()
+                } else {
+                    Log.e("NewTestScreen", "❌ Lỗi tạo quiz: $error")
+                }
             }
-        }
+        )
     }
 
-    Column(
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1E293B))
@@ -191,7 +209,6 @@ fun NewTestScreen(
     }
 }
 
-// Model tạm cho UI
 data class QuestionItem(val question: String, val answers: List<String>)
 
 @Composable

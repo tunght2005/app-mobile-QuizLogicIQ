@@ -1,8 +1,8 @@
 package com.example.logiciq.data.repository
 
+import com.example.logiciq.data.mapper.toQuizOrNull
 import com.example.logiciq.data.model.ClassItem
 import com.example.logiciq.data.model.Member
-import com.example.logiciq.data.model.Question
 import com.example.logiciq.data.model.Quiz
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -13,8 +13,11 @@ import java.util.UUID
 class ClassRepository {
     private val db = FirebaseFirestore.getInstance()
     private val col = db.collection("classes")
+    private val quizCol = db.collection("quizzes")
 
-    // ✅ Tạo lớp học và tự động thêm quiz từ thư viện nếu có
+    /**
+     * ✅ Tạo lớp học mới, thêm người tạo làm thành viên
+     */
     suspend fun createClass(name: String, description: String): String {
         val user = FirebaseAuth.getInstance().currentUser
             ?: throw Exception("Chưa đăng nhập")
@@ -33,85 +36,62 @@ class ClassRepository {
             description = description,
             createdBy = user.uid,
             creatorName = user.displayName ?: "Không tên",
-            members = listOf(member), // ✅ truyền đúng List<Member>
+            members = listOf(member),
             createdAt = Timestamp.now()
         )
 
-        // Tạo lớp học
         col.document(classId).set(classItem).await()
-
-        // Lấy tất cả bài thi cá nhân để thêm vào lớp
-        val tests = db.collection("tests")
-            .whereEqualTo("createBy", user.uid)
-            .get()
-            .await()
-
-        val batch = db.batch()
-
-        tests.documents.forEach { doc ->
-            val quizRef = col.document(classId)
-                .collection("quizzes")
-                .document(doc.id)
-
-            batch.set(quizRef, doc.data ?: return@forEach)
-        }
-
-        batch.commit().await()
-
         return classId
+    }
+    suspend fun shareQuizToClass(quizId: String, classId: String) {
+        val quizRef = quizCol.document(quizId)
+        val snapshot = quizRef.get().await()
+        val existingIds = snapshot.get("classIds") as? List<String> ?: emptyList()
+        val updatedIds = existingIds.toMutableSet().apply { add(classId) }.toList()
+        quizRef.update("classIds", updatedIds).await()
     }
 
 
-    // ✅ Lấy thông tin lớp học
+    /**
+     * ✅ Lấy thông tin chi tiết của một lớp học
+     */
     suspend fun getClassById(classId: String): ClassItem {
         val doc = col.document(classId).get().await()
         return doc.toObject(ClassItem::class.java)!!.copy(id = doc.id)
     }
 
-    // ✅ Lấy danh sách bài thi trong lớp học (classes/{classId}/quizzes)
-    suspend fun getQuizzesByClassId(classId: String): List<Quiz> {
+    /**
+     * ✅ Lấy danh sách bài thi thuộc lớp này (dựa vào classIds chứa classId)
+     */
+    suspend fun getQuizzesForClass(classId: String): List<Quiz> {
         return try {
-            val snapshot = col.document(classId)
-                .collection("quizzes")
+            val snapshot = quizCol
+                .whereArrayContains("classIds", classId)
                 .get()
                 .await()
 
             snapshot.documents.mapNotNull { doc ->
-                try {
-                    val title = doc.getString("title") ?: return@mapNotNull null
-                    val questionsData = doc.get("questions") as? List<Map<String, Any>> ?: return@mapNotNull null
-
-                    val questions = questionsData.mapNotNull { q ->
-                        val question = q["question"] as? String ?: return@mapNotNull null
-                        val answers = q["answers"] as? List<String> ?: return@mapNotNull null
-                        val correct = q["correctOption"]?.toString()?.firstOrNull() ?: 'A'
-
-                        if (answers.size != 4) return@mapNotNull null
-
-                        Question.Type4(
-                            text = question,
-                            optionA = answers[0],
-                            optionB = answers[1],
-                            optionC = answers[2],
-                            optionD = answers[3],
-                            correctOption = correct
-                        )
-                    }
-
-                    Quiz(
-                        id = doc.getString("id") ?: doc.id,
-                        title = title,
-                        questions = questions,
-                        maxDurationSeconds = (doc.getLong("maxDurationSeconds") ?: 0).toInt(),
-                        createBy = doc.getString("createBy") ?: "",
-                        createByName = doc.getString("createByName") ?: "",
-                        createdAt = doc.getTimestamp("createdAt") ?: Timestamp.now(),
-                        classId = classId
-                    )
-                } catch (e: Exception) {
-                    null
-                }
+                doc.toQuizOrNull() // ⬅ dùng hàm custom chuyển từ DocumentSnapshot sang Quiz
             }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+
+
+    /**
+     * ✅ Lấy danh sách ClassItem đầy đủ của user
+     */
+    suspend fun getClassesForUser(userId: String): List<ClassItem> {
+        return try {
+            col.get().await()
+                .mapNotNull { doc ->
+                    val classItem = doc.toObject(ClassItem::class.java)
+                    if (classItem.members.any { it.userId == userId }) {
+                        classItem.copy(id = doc.id)
+                    } else null
+                }
         } catch (e: Exception) {
             emptyList()
         }
