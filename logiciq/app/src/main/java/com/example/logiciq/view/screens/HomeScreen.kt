@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.logiciq.view.screens
 
 import androidx.compose.foundation.background
@@ -11,16 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.logiciq.data.model.SearchResult
 import com.example.logiciq.navigation.Routes
 import com.example.logiciq.view.components.*
 import com.example.logiciq.viewmodel.LibraryViewModel
-import com.example.logiciq.view.components.AddOptionsBottomSheet
+import com.example.logiciq.viewmodel.QuizViewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.text.Normalizer
 import java.util.regex.Pattern
-import com.example.logiciq.data.model.SearchResult
-
 
 fun String.removeDiacritics(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
@@ -40,6 +42,8 @@ val mockData = listOf(
 @Composable
 fun HomeScreen(navController: NavController) {
     val viewModel: LibraryViewModel = viewModel()
+    val quizViewModel: QuizViewModel = viewModel()
+
     val classList by viewModel.classList.collectAsState(initial = emptyList())
     val testList by viewModel.testList.collectAsState(initial = emptyList())
 
@@ -50,9 +54,13 @@ fun HomeScreen(navController: NavController) {
     var showError by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadClasses()
-        viewModel.loadTests()
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    LaunchedEffect(userId) {
+        userId?.let {
+            viewModel.loadTests(it)
+            viewModel.loadClasses()
+        }
     }
 
     Box(
@@ -89,7 +97,16 @@ fun HomeScreen(navController: NavController) {
             item { CalendarRow() }
             item { ReminderSection() }
             item { ClassSection(navController = navController, classList = classList) }
-            item { ExamSection(navController = navController, testList = testList) }
+            item {
+                ExamSection(
+                    navController = navController,
+                    testList = testList,
+                    viewModel = quizViewModel,
+                    onDeleteSuccess = {
+                        userId?.let { viewModel.loadTests(it) }
+                    }
+                )
+            }
         }
 
         if (showResult) {

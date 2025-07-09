@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.logiciq.data.model.ClassItem
 import com.example.logiciq.data.model.Quiz
 import com.example.logiciq.data.repository.ClassRepository
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,9 @@ class ClassViewModel(
     private val _quizList = MutableStateFlow<List<Quiz>>(emptyList())
     val quizList: StateFlow<List<Quiz>> = _quizList.asStateFlow()
 
-    // ✅ KHÔNG cần truyền quiz nữa
+    /**
+     * ✅ Tạo lớp mới
+     */
     fun createClass(
         name: String,
         description: String,
@@ -37,6 +41,26 @@ class ClassViewModel(
         }
     }
 
+    fun shareQuizToClass(
+        quizId: String,
+        classId: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.shareQuizToClass(quizId, classId)
+                onSuccess()
+            } catch (e: Exception) {
+                onFailure(e)
+            }
+        }
+    }
+
+
+    /**
+     * ✅ Tải thông tin lớp học cụ thể
+     */
     fun loadClass(classId: String) {
         viewModelScope.launch {
             try {
@@ -48,14 +72,31 @@ class ClassViewModel(
         }
     }
 
+    fun deleteClass(classId: String, onSuccess: () -> Unit) {
+        Firebase.firestore.collection("classes")
+            .document(classId)
+            .delete()
+            .addOnSuccessListener { onSuccess() }
+    }
+
+
+    /**
+     * ✅ Tải các bài thi thuộc lớp (dựa vào classIds trong Quiz)
+     */
     fun loadQuizzes(classId: String) {
         viewModelScope.launch {
             try {
-                val quizzes = repository.getQuizzesByClassId(classId)
+                Log.d("ClassViewModel", "Đang tải quiz cho classId = $classId")
+                val quizzes = repository.getQuizzesForClass(classId)
+                Log.d("ClassViewModel", "Tải thành công ${quizzes.size} bài thi")
+                quizzes.forEach {
+                    Log.d("ClassViewModel", "Quiz: ${it.title} - classIds = ${it.classIds}")
+                }
                 _quizList.value = quizzes
             } catch (e: Exception) {
-                Log.e("ClassViewModel", "Lỗi tải bài thi của lớp: ${e.message}")
+                Log.e("ClassViewModel", "Lỗi tải bài thi của lớp: ${e.message}", e)
             }
         }
     }
 }
+

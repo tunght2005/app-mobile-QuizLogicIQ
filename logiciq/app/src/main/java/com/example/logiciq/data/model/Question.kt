@@ -1,6 +1,5 @@
 package com.example.logiciq.data.model
 
-import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 enum class QuestionType { TYPE4 }
@@ -30,32 +29,44 @@ sealed class Question {
     }
 }
 
-// Convert Type4 to Map
+// Convert Type4 to Map for Firestore
 fun Question.Type4.toMap(): Map<String, Any> {
     return mapOf(
         "id" to id,
         "text" to text,
         "type" to "TYPE4",
-        "optionA" to optionA,
-        "optionB" to optionB,
-        "optionC" to optionC,
-        "optionD" to optionD,
+        "options" to mapOf(
+            "A" to optionA,
+            "B" to optionB,
+            "C" to optionC,
+            "D" to optionD
+        ),
         "correctOption" to correctOption.toString()
     )
 }
 
 // Convert Map to Question
-fun questionFromMap(map: Map<String, Any>): Question {
+fun questionFromMap(map: Map<String, Any?>): Question {
     return when (map["type"]) {
-        "TYPE4" -> Question.Type4(
-            id = map["id"] as String,
-            text = map["text"] as String,
-            optionA = map["optionA"] as String,
-            optionB = map["optionB"] as String,
-            optionC = map["optionC"] as String,
-            optionD = map["optionD"] as String,
-            correctOption = (map["correctOption"] as String).first()
-        )
+        "TYPE4" -> {
+            val id = map["id"] as? String ?: throw IllegalArgumentException("Thiếu id")
+            val text = map["text"] as? String ?: throw IllegalArgumentException("Thiếu text")
+            val correctOptionStr = map["correctOption"] as? String ?: throw IllegalArgumentException("Thiếu correctOption")
+            val correctOption = correctOptionStr.first()
+
+            val optionsMap = map["options"] as? Map<String, String> ?: throw IllegalArgumentException("Thiếu options")
+
+            Question.Type4(
+                id = id,
+                text = text,
+                optionA = optionsMap["A"] ?: "",
+                optionB = optionsMap["B"] ?: "",
+                optionC = optionsMap["C"] ?: "",
+                optionD = optionsMap["D"] ?: "",
+                correctOption = correctOption
+            )
+        }
+
         else -> throw IllegalArgumentException("Loại câu hỏi không hợp lệ")
     }
 }

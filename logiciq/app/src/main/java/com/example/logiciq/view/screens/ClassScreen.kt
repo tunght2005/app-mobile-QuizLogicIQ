@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.logiciq.view.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -27,10 +30,21 @@ fun ClassScreen(
     val classState by viewModel.classState.collectAsState()
     val quizList by viewModel.quizList.collectAsState()
 
-    // Gọi khi classId thay đổi
+    var showDialog by remember { mutableStateOf(false) }
+
+    // Lần đầu load class và quizzes
     LaunchedEffect(classId) {
         viewModel.loadClass(classId)
         viewModel.loadQuizzes(classId)
+    }
+
+    // Nếu có quiz mới được chia sẻ vào lớp thì reload lại danh sách quiz
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    LaunchedEffect(savedStateHandle?.get<Boolean>("quizShared")) {
+        if (savedStateHandle?.get<Boolean>("quizShared") == true) {
+            viewModel.loadQuizzes(classId)
+            savedStateHandle["quizShared"] = false
+        }
     }
 
     if (classState == null) {
@@ -56,7 +70,7 @@ fun ClassScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 58.dp, start = 30.dp, end = 30.dp, bottom = 40.dp)
+                .padding(top = 58.dp, start = 20.dp, end = 20.dp, bottom = 30.dp)
         ) {
             IconButton(
                 onClick = { navController.popBackStack() },
@@ -66,7 +80,7 @@ fun ClassScreen(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.White,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(36.dp)
                 )
             }
 
@@ -74,9 +88,20 @@ fun ClassScreen(
                 text = classItem.name,
                 modifier = Modifier.align(Alignment.Center),
                 color = Color.White,
-                fontSize = 26.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Medium
             )
+
+            IconButton(
+                onClick = { showDialog = true },
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Tuỳ chọn",
+                    tint = Color.White
+                )
+            }
         }
 
         // Tabs
@@ -130,5 +155,31 @@ fun ClassScreen(
                 1 -> MemberTabContent(members = classItem.members)
             }
         }
+    }
+
+    // Dialog xác nhận xoá lớp học
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Tuỳ chọn lớp học") },
+            text = {
+                Text("Bạn có chắc chắn muốn xoá lớp học này? Thao tác này không thể hoàn tác.")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    viewModel.deleteClass(classId) {
+                        navController.popBackStack() // Quay lại sau khi xoá
+                    }
+                }) {
+                    Text("Xoá", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Huỷ")
+                }
+            }
+        )
     }
 }

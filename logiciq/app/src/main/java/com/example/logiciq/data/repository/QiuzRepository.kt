@@ -4,13 +4,25 @@ import com.example.logiciq.data.model.Question
 import com.example.logiciq.data.model.Quiz
 import com.example.logiciq.data.model.QuizResult
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
+import com.example.logiciq.data.mapper.toQuizOrNull
+
 
 class QuizRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     private val quizCollection = db.collection("quizzes")
     private val resultCollection = db.collection("quiz_results")
+
+    suspend fun getUserClassIds(userId: String): List<String> {
+        val snapshot = db.collection("classes")
+            .whereArrayContains("members", userId)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.id }
+    }
 
     // ✅ Thêm Quiz mới vào Firestore
     fun saveQuiz(quiz: Quiz, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
@@ -19,9 +31,9 @@ class QuizRepository(
             "title" to quiz.title,
             "maxDurationSeconds" to quiz.maxDurationSeconds,
             "createdAt" to quiz.createdAt,
-            "createBy" to quiz.createBy,
-            "createByName" to quiz.createByName,
-            "classId" to (quiz.classId ?: ""),
+            "createBy" to quiz.createdBy,
+            "createByName" to quiz.createdByName,
+            "classIds" to quiz.classIds,
             "questions" to quiz.questions.map { q ->
                 when (q) {
                     is Question.Type4 -> mapOf(
@@ -46,6 +58,11 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
+    // ✅ Xoá quiz theo ID
+    suspend fun deleteQuiz(quizId: String) {
+        quizCollection.document(quizId).delete().await()
+    }
+
     // ✅ Lưu kết quả làm bài
     fun saveQuizResult(
         result: QuizResult,
@@ -57,16 +74,33 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // ✅ Lấy tất cả quiz (toàn bộ)
-    fun getAllQuizzes(
+    // ✅ Lấy tất cả quiz do người dùng tạo
+    fun getQuizzesByUserId(
+        userId: String,
         onSuccess: (List<Quiz>) -> Unit,
         onError: (Exception) -> Unit
     ) {
-        quizCollection.get()
+        quizCollection
+            .whereEqualTo("createBy", userId)
+            .get()
             .addOnSuccessListener { snapshot ->
-                val quizzes = snapshot.documents.mapNotNull { doc ->
-                    doc.toQuizOrNull()
-                }
+                val quizzes = snapshot.documents.mapNotNull { it.toQuizOrNull() }
+                onSuccess(quizzes)
+            }
+            .addOnFailureListener { e -> onError(e) }
+    }
+
+    // ✅ Lấy tất cả quiz thuộc một lớp
+    fun getQuizzesByClassId(
+        classId: String,
+        onSuccess: (List<Quiz>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        quizCollection
+            .whereArrayContains("classIds", classId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val quizzes = snapshot.documents.mapNotNull { it.toQuizOrNull() }
                 onSuccess(quizzes)
             }
             .addOnFailureListener { e -> onError(e) }
@@ -90,7 +124,8 @@ class QuizRepository(
             .addOnFailureListener { e -> onError(e) }
     }
 
-    // ✅ Extension hỗ trợ chuyển map thành Question
+    // ✅ Chuyển Map thành Question
+    // ✅ Chuyển Map thành Question (đã fix lỗi null cast)
     private fun Map<String, Any>.toQuestion(): Question? {
         val type = this["type"] as? String ?: return null
         val id = this["id"] as? String ?: return null
@@ -98,9 +133,14 @@ class QuizRepository(
 
         return when (type) {
             "TYPE4" -> {
-                val options = this["options"] as? Map<String, String> ?: return null
+                val optionsRaw = this["options"] as? Map<*, *> ?: return null
+                val options = optionsRaw.mapNotNull { (key, value) ->
+                    if (key is String && value is String) key to value else null
+                }.toMap()
+
                 val correctOptionStr = this["correctOption"] as? String ?: return null
                 val correctOption = correctOptionStr.firstOrNull() ?: return null
+
                 Question.Type4(
                     id = id,
                     text = text,
@@ -111,32 +151,11 @@ class QuizRepository(
                     correctOption = correctOption
                 )
             }
+
             else -> null
         }
     }
-
-    // ✅ Extension chuyển DocumentSnapshot thành Quiz
-    private fun com.google.firebase.firestore.DocumentSnapshot.toQuizOrNull(): Quiz? {
-        val id = getString("id") ?: return null
-        val title = getString("title") ?: return null
-        val maxDurationSeconds = getLong("maxDurationSeconds")?.toInt() ?: return null
-        val createBy = getString("createBy") ?: ""
-        val createByName = getString("createByName") ?: ""
-        val classId = getString("classId")
-        val createdAt = getTimestamp("createdAt") ?: Timestamp.now()
-        val questionsData = get("questions") as? List<Map<String, Any>> ?: return null
-
-        val questions = questionsData.mapNotNull { it.toQuestion() }
-
-        return Quiz(
-            id = id,
-            title = title,
-            questions = questions,
-            maxDurationSeconds = maxDurationSeconds,
-            createBy = createBy,
-            createByName = createByName,
-            classId = classId,
-            createdAt = createdAt
-        )
-    }
 }
+
+
+
