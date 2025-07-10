@@ -2,6 +2,10 @@
 
 package com.example.logiciq.view.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,7 +16,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.logiciq.data.model.SearchResult
@@ -20,6 +26,8 @@ import com.example.logiciq.navigation.Routes
 import com.example.logiciq.view.components.*
 import com.example.logiciq.viewmodel.LibraryViewModel
 import com.example.logiciq.viewmodel.QuizViewModel
+import com.example.logiciq.viewmodel.ReminderViewModel
+import com.example.logiciq.viewmodel.ReminderViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import java.text.Normalizer
 import java.util.regex.Pattern
@@ -41,11 +49,33 @@ val mockData = listOf(
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
+
+    // ✅ Xin quyền thông báo nếu Android 13+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) {}
+
+        LaunchedEffect(Unit) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     val viewModel: LibraryViewModel = viewModel()
     val quizViewModel: QuizViewModel = viewModel()
+    val reminderViewModel: ReminderViewModel = viewModel(factory = ReminderViewModelFactory(context))
 
     val classList by viewModel.classList.collectAsState(initial = emptyList())
     val testList by viewModel.testList.collectAsState(initial = emptyList())
+    val reminderList by remember { derivedStateOf { reminderViewModel.reminders } }
 
     var showAddSheet by remember { mutableStateOf(false) }
     var search by rememberSaveable { mutableStateOf("") }
@@ -60,6 +90,7 @@ fun HomeScreen(navController: NavController) {
         userId?.let {
             viewModel.loadTests(it)
             viewModel.loadClasses()
+            reminderViewModel.loadRemindersForToday()
         }
     }
 
@@ -94,9 +125,22 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
             }
+
             item { CalendarRow() }
-            item { ReminderSection() }
-            item { ClassSection(navController = navController, classList = classList) }
+
+            item {
+                ReminderSection(
+                    reminderList = reminderList,
+                    onAddReminder = { title, start, end ->
+                        reminderViewModel.addReminder(title, start, end)
+                    }
+                )
+            }
+
+            item {
+                ClassSection(navController = navController, classList = classList)
+            }
+
             item {
                 ExamSection(
                     navController = navController,
