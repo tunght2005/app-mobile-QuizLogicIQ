@@ -1,0 +1,82 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.example.logiciq.view.components
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.logiciq.data.model.Quiz
+import com.example.logiciq.navigation.Routes
+
+@Composable
+fun TestTabContent(
+    navController: NavController,
+    testList: List<Quiz>
+) {
+    LazyColumn(
+        modifier = Modifier.padding(bottom = 100.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(testList) { quiz ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF3F6ABA)),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("test_screen/${quiz.id}")
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(5.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = quiz.title.ifEmpty { "Bài kiểm tra chưa có tiêu đề" },
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier
+                                .widthIn(max = 200.dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "${quiz.questions.size} câu hỏi",
+                            color = Color.White
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                        ) {
+                            Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                            Text(
+                                text = quiz.createdByName,
+                                color = Color.White,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
