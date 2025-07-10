@@ -2,8 +2,10 @@ package com.example.logiciq.view.components
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,24 +35,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.items
+import com.example.logiciq.data.model.Reminder
 
 @Composable
-fun ReminderSection() {
-    //Xử lí viewModel để lấy api cho lịch
+fun ReminderSection(
+    reminderList: List<Reminder>,
+    onAddReminder: (String, String, String) -> Unit
+) {
     var showDialog by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
         Text("Lời Nhắc Nhở", fontWeight = FontWeight.Bold)
+
+        if (reminderList.isEmpty()) {
+            Text(
+                text = "Chưa có lời nhắc nào",
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+            )
+        }
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(4) {
+            items(reminderList) { reminder ->
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF8572FF)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .height(75.dp)
                         .width(330.dp)
                 ) {
@@ -73,10 +90,8 @@ fun ReminderSection() {
                         }
                         Spacer(modifier = Modifier.width(24.dp))
                         Column {
-                            Text("DEMO GHI CHÚ LỊCH", fontWeight = FontWeight.Bold, color = Color.White)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Text(reminder.title, fontWeight = FontWeight.Bold, color = Color.White)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Default.Notifications,
                                     contentDescription = null,
@@ -85,17 +100,16 @@ fun ReminderSection() {
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "12.00 - 16.00",
+                                    text = "${reminder.startTime} - ${reminder.endTime}",
                                     color = Color.White
                                 )
                             }
-
                         }
                     }
                 }
             }
         }
-        // Add form xữ lí tạo lịch với modal "CHỈ" lịch trong ngày (update lịch tự lựa chọn)
+
         Button(
             onClick = { showDialog = true },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDE496E)),
@@ -109,11 +123,11 @@ fun ReminderSection() {
             CreateReminderDialog(
                 onDismiss = { showDialog = false },
                 onSave = { title, start, end ->
-                    // TODO: Lưu lịch vào ViewModel hoặc danh sách
-                    Log.d("Reminder", "$title: $start - $end")
+                    onAddReminder(title, start, end)
+                    showDialog = false
                 }
             )
         }
-
     }
 }
+
