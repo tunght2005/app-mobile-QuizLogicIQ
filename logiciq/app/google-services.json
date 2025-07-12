@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "23704905954",
+    "project_id": "logiciq-45dfa",
+    "storage_bucket": "logiciq-45dfa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:23704905954:android:c523f4f0b886eb89ef16bb",
+        "android_client_info": {
+          "package_name": "com.example.logiciq"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "23704905954-eucp3i7thb6e9fc9rvl5psvvhm6fn0p1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.logiciq",
+            "certificate_hash": "54ba42d2e374aa5d83bf3535e3bfa475130df05c"
+          }
+        },
+        {
+          "client_id": "23704905954-vmg3838dd9409ol0prrqup3f3im22j27.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.logiciq",
+            "certificate_hash": "03abb01ef960bd5d90c506a0aca510a87818a55d"
+          }
+        },
+        {
+          "client_id": "23704905954-jqstgjalpr612cpqkjnhshnam2qohuas.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIpsCET8ZvNg6WR4N2OZLuceMGWD4KiyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "23704905954-jqstgjalpr612cpqkjnhshnam2qohuas.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

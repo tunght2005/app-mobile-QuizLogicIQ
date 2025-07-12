@@ -1,0 +1,5 @@
+Nhóm K - Số TT: Group 11
+Link git nhóm: https://github.com/tunght2005/app-mobile-QuizLogicIQ
+LÊ VĂN TÙNG(045205000787): Link git cá nhân | https://github.com/tunght2005/programing-mobile-excersise
+PHẠM XUÂN DŨNG(046205000170): Link git cá nhân | https://github.com/Dungpx031005/LapTrinhTBDD
+TRẦN PHÁT TÀI(080205011244): Link git cá nhân | https://github.com/taitrancoding/LapTrinhTBDD

@@ -8,7 +8,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.logiciq.navigation.AppNavGraph
-import com.example.logiciq.ui.theme.LogicIQTheme
+import com.example.logiciq.view.theme.LogicIQTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

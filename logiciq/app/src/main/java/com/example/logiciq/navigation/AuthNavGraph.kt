@@ -4,7 +4,7 @@ package com.example.logiciq.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.logiciq.ui.screens.*
+import com.example.logiciq.view.screens.*
 
 fun NavGraphBuilder.authGraph(navController: NavHostController) {
     composable(Routes.WELCOME) { WelcomeScreen(navController) }

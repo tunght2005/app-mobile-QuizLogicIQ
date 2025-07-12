@@ -1,14 +1,16 @@
 package com.example.logiciq.navigation
 
 object Routes {
+    // Root graphs
+    const val AUTH = "auth"
+    const val MAIN = "main"
+
     // Auth screens
     const val WELCOME = "welcome_screen"
     const val START = "start_screen"
     const val LOGIN = "login_screen"
     const val REGISTER = "register_screen"
     const val RESET = "reset_password_screen"
-//    const val CONFIRM = "confirm_screen"
-//    const val VERIFY_CODE = "verify_code_screen"
 
     // Main screens (sau khi đăng nhập)
     const val HOME = "home_screen"
@@ -16,11 +18,10 @@ object Routes {
     const val CLASS = "class_screen"
     const val NEWCLASS = "create_class"
     const val NEWTEST = "create_test"
-    const val NEWSUBJECT = "create_subject"
-    const val SUBJECT = "suject_screen"
     const val TEST = "test_screen"
     const val EXAM = "exam_screen"
     const val LEARNING = "learning_screen"
+    const val SHARE= "share_to_class_screen"
 
     // Profile / Setting
     const val PROFILE = "profile_screen"
